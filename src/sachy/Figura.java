@@ -12,7 +12,7 @@ public abstract class Figura
     public Figura(Point pozice, boolean barva){
         this.pozice = pozice;
         this.barva = barva;
-        
+        //Toto je komentář
     }
     
     public Point getPozice(){
