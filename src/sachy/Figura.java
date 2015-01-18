@@ -15,11 +15,22 @@ public abstract class Figura
     public Figura(Point pozice, boolean barva){
         this.pozice = pozice;
         this.barva = barva;
-        //Toto je komentář
     }
     
     public Point getPozice(){
         return pozice;
     }
+    public void setPozice(Point souradnice){
+        pozice = souradnice;
+    }
+    public ArrayList<Point> getMozneTahy(){
+        return mnozinaTahu;
+    }
+    
+    public void setVyhozena(boolean bol){
+        vyhozena = bol;
+    }
+    
+    abstract void ziskejMozneTahy();
     
 }

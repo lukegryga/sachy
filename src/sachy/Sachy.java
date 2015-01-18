@@ -17,8 +17,8 @@ public class Sachy {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        Point a = Sachovnice.prevedNaSouradnice("+9");
-        System.out.println(a.x + " + " + a.y);
+        
+        System.out.println(Sachovnice.pointNaSouradnice(new Point(0,8)));
     }
     
 }
