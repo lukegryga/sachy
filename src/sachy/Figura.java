@@ -10,7 +10,7 @@ public abstract class Figura
     protected final boolean barva;
     protected Point pozice;
     protected boolean vyhozena = false;
-    protected ArrayList<Point> mnozinaTahu = new ArrayList<>();
+    protected ArrayList<Point> mozneTahy = new ArrayList<>();
     
     public Figura(Point pozice, boolean barva){
         this.pozice = pozice;
@@ -23,14 +23,11 @@ public abstract class Figura
     public void setPozice(Point souradnice){
         pozice = souradnice;
     }
-    public ArrayList<Point> getMozneTahy(){
-        return mnozinaTahu;
-    }
     
     public void setVyhozena(boolean bol){
         vyhozena = bol;
     }
     
-    abstract void ziskejMozneTahy();
+    public abstract ArrayList<Point> getMozneTahy();
     
 }

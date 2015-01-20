@@ -17,8 +17,12 @@ public class Sachy {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        
-        System.out.println(Sachovnice.pointNaSouradnice(new Point(0,8)));
+        Sachovnice sachovnice = Sachovnice.getSachovnice();
+        sachovnice.testMethod();
+        Figura vez1 = sachovnice.rozmisteni[0][0];
+        for(Point p : vez1.getMozneTahy()){
+            System.out.println(vez1 + " -> " + Sachovnice.pointNaSouradnice(p));
+        }
     }
     
 }

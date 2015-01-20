@@ -13,7 +13,7 @@ public class Sachovnice {
     
     private final ArrayList<Figura> vyhozeneFigury = new ArrayList<>();
     
-    private Figura[][] rozmisteni;
+    public Figura[][] rozmisteni = new Figura[8][8];
     private boolean hra = false;
     private boolean jeNaTahu = true;
     
@@ -25,6 +25,16 @@ public class Sachovnice {
     }
     
     private Sachovnice(){}
+    
+    public void testMethod(){
+        rozmisteni[0][0] = new Dama(new Point(1,1), true);
+        rozmisteni[1][1] = new Pesec(new Point(2,2), false);
+    }
+    
+    public Figura vyberFiguru(String souradnice){
+        Point pSourad = Sachovnice.souradniceNaPoint(souradnice);
+        return rozmisteni[pSourad.x-1][pSourad.y-1];
+    }
     
     public boolean tahni(Figura figura, String souradnice){
         Point kam = souradniceNaPoint(souradnice);
@@ -43,7 +53,7 @@ public class Sachovnice {
         return false;
     }
     
-    int jeVolno(Point pozice){
+    public int jeVolno(Point pozice){
         if(!existujeSouradnice(pozice)){
             throw new IllegalArgumentException("Neexistující souřadnice");
         }
@@ -55,7 +65,7 @@ public class Sachovnice {
         return 0;
     }
     
-    int jeVolno(int x, int y){
+    public int jeVolno(int x, int y){
         if(!existujeSouradnice(x, y)){
             throw new IllegalArgumentException("Neexistující souřadnice");
         }
@@ -96,6 +106,12 @@ public class Sachovnice {
     }
     static boolean existujeSouradnice(int x, int y){
         return !((x >= 9 || x <= 0) || (y >= 9 || y <= 0));
+    }
+    
+    static int barvaNaInt(boolean barva){
+        if(barva)
+            return 1;
+        return 0;
     }
     
     private Figura getFiguraNaPozici(Point pozice){
