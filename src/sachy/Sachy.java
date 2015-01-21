@@ -19,10 +19,15 @@ public class Sachy {
     public static void main(String[] args) {
         Sachovnice sachovnice = Sachovnice.getSachovnice();
         sachovnice.testMethod();
-        Figura vez1 = sachovnice.rozmisteni[0][0];
-        for(Point p : vez1.getMozneTahy()){
-            System.out.println(vez1 + " -> " + Sachovnice.pointNaSouradnice(p));
-        }
+        Kral kral = (Kral) sachovnice.rozmisteni[5][5];
+        for(Point p : kral.getMozneTahy()){
+            System.out.println(kral + " -> " + Sachovnice.pointNaSouradnice(p));
+       }
+        
+        if(kral.jeKralOhrozen()){
+            System.out.println("Ano");
+        }else
+            System.out.println("Ne");
     }
     
 }

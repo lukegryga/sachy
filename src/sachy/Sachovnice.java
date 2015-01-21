@@ -27,13 +27,21 @@ public class Sachovnice {
     private Sachovnice(){}
     
     public void testMethod(){
-        rozmisteni[0][0] = new Dama(new Point(1,1), true);
-        rozmisteni[1][1] = new Pesec(new Point(2,2), false);
+        rozmisteni[5][5] = new Kral(new Point(6,6),false);
+        rozmisteni[4][3] = new Kun(new Point(5,4), true);
+        //rozmisteni[1][1] = new Pesec(new Point(2,2), false);
+        //rozmisteni[2][2] = new Strelec(new Point(3,3), true);
+        rozmisteni[0][2] = new Vez(new Point(1,3), true);
+        //rozmisteni[0][1] = new Pesec(new Point(1,2), false);
     }
     
     public Figura vyberFiguru(String souradnice){
         Point pSourad = Sachovnice.souradniceNaPoint(souradnice);
         return rozmisteni[pSourad.x-1][pSourad.y-1];
+    }
+    
+    public Figura vyberFiguru(Point souradnice){
+        return rozmisteni[souradnice.x-1][souradnice.y-1];
     }
     
     public boolean tahni(Figura figura, String souradnice){
@@ -77,7 +85,7 @@ public class Sachovnice {
         return 0;
     }
     
-    static Point souradniceNaPoint(String tah){
+    public static Point souradniceNaPoint(String tah){
         tah = tah.toLowerCase();
         char[] pozice = tah.toCharArray();
         if(pozice.length != 2){
@@ -91,7 +99,7 @@ public class Sachovnice {
         return new Point(x, y);
     }
     
-    static String pointNaSouradnice(Point souradnice){
+    public static String pointNaSouradnice(Point souradnice){
         if(!existujeSouradnice(souradnice)){
             throw new IllegalArgumentException("Neexistující souřadnice");
         }
@@ -101,14 +109,14 @@ public class Sachovnice {
         return String.join("", String.valueOf(posX).toUpperCase(), posY);
     }
     
-    static boolean existujeSouradnice(Point souradnice){
+    public static boolean existujeSouradnice(Point souradnice){
         return !((souradnice.x >= 9 || souradnice.x <= 0) || (souradnice.y >= 9 || souradnice.y <= 0));
     }
-    static boolean existujeSouradnice(int x, int y){
+    public static boolean existujeSouradnice(int x, int y){
         return !((x >= 9 || x <= 0) || (y >= 9 || y <= 0));
     }
     
-    static int barvaNaInt(boolean barva){
+    public static int barvaNaInt(boolean barva){
         if(barva)
             return 1;
         return 0;
