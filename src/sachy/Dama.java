@@ -4,15 +4,30 @@ package sachy;
 import java.awt.Point;
 import java.util.ArrayList;
 
-
+/**
+ *
+ * @author Lukáš
+ */
 public class Dama extends Figura{
     
+    /**
+     *
+     */
     public static final int hodtnotaFigury = 8;
 
+    /**
+     *
+     * @param pozice
+     * @param barva
+     */
     public Dama(Point pozice, boolean barva) {
         super(pozice, barva);
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     public ArrayList<Point> getMozneTahy() {
         int iBarva = Sachovnice.barvaNaInt(barva);
@@ -22,7 +37,7 @@ public class Dama extends Figura{
         //Ověřování směru vpravo
         while(Sachovnice.existujeSouradnice(++ pXPos, pYPos )){                 //Pokud souradnice o jedna do prava existuje
             if(sachovnice.jeVolno(pXPos, pYPos) != iBarva){                     //Pokud na místě nestojí figura stejné barvy
-                mozneTahy.add(new Point(pXPos, pYPos));
+                    mozneTahy.add(new Point(pXPos, pYPos));
                 if(sachovnice.jeVolno(pXPos, pYPos) != -1){                     //Pokud na míste stojí figura cizí barvy (Není tam przdno)
                     break;
                 }

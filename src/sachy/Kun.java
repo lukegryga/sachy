@@ -5,15 +5,30 @@ package sachy;
 import java.awt.Point;
 import java.util.ArrayList;
 
-
+/**
+ *
+ * @author Lukáš
+ */
 public class Kun extends Figura{
     
+    /**
+     *
+     */
     public static final int hodnotaFigury = 3;
 
+    /**
+     *
+     * @param pozice
+     * @param barva
+     */
     public Kun(Point pozice, boolean barva) {
         super(pozice, barva);
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     public ArrayList<Point> getMozneTahy() {
         int iBarva = Sachovnice.barvaNaInt(barva);

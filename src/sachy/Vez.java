@@ -4,15 +4,30 @@ package sachy;
 import java.awt.Point;
 import java.util.ArrayList;
 
-
+/**
+ *
+ * @author Lukáš
+ */
 public class Vez extends Figura {
     
+    /**
+     *
+     */
     public static final int hodnotaFigury = 5;
 
+    /**
+     *
+     * @param pozice
+     * @param barva
+     */
     public Vez(Point pozice, boolean barva) {
         super(pozice, barva);
     }
     
+    /**
+     *
+     * @return
+     */
     @Override
     public ArrayList<Point> getMozneTahy() {
         int iBarva = Sachovnice.barvaNaInt(barva);

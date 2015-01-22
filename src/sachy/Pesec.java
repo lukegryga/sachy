@@ -14,12 +14,24 @@ import java.util.ArrayList;
  */
 public class Pesec extends Figura{
     
+    /**
+     *
+     */
     public static final int hodnotaFigury = 1;
 
+    /**
+     *
+     * @param pozice
+     * @param barva
+     */
     public Pesec(Point pozice, boolean barva) {
         super(pozice, barva);
     }
     
+    /**
+     *
+     * @return
+     */
     @Override
     public ArrayList<Point> getMozneTahy(){
         mozneTahy.clear();

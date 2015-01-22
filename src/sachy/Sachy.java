@@ -5,29 +5,22 @@
  */
 package sachy;
 
-import java.awt.Point;
+import java.util.Scanner;
 
 /**
  *
  * @author Lukáš
  */
 public class Sachy {
+    
+    private static final Scanner sc = new Scanner(System.in, "windows-1250");
+    private static final ChessKordinator ChM = ChessKordinator.getChessKordinator();
 
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        Sachovnice sachovnice = Sachovnice.getSachovnice();
-        sachovnice.testMethod();
-        Kral kral = (Kral) sachovnice.rozmisteni[5][5];
-        for(Point p : kral.getMozneTahy()){
-            System.out.println(kral + " -> " + Sachovnice.pointNaSouradnice(p));
-       }
-        
-        if(kral.jeKralOhrozen()){
-            System.out.println("Ano");
-        }else
-            System.out.println("Ne");
-    }
+        ChM.zacniHru();
+    }        
     
 }

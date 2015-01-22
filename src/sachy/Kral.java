@@ -5,19 +5,39 @@ package sachy;
 import java.awt.Point;
 import java.util.ArrayList;
 
-
+/**
+ *
+ * @author Lukáš
+ */
 public class Kral extends Figura{
     
+    /**
+     *
+     */
     public static final int hodnotaFigury = 0;
 
+    /**
+     *
+     * @param pozice
+     * @param barva
+     */
     public Kral(Point pozice, boolean barva) {
         super(pozice, barva);
     }
     
+    /**
+     *
+     * @return
+     */
     public boolean jeKralOhrozen(){
         return jeKralOhrozen(pozice);
     }
     
+    /**
+     *
+     * @param souradnice
+     * @return
+     */
     public boolean jeKralOhrozen(Point souradnice){
         int iBarva = Sachovnice.barvaNaInt(barva);
         int negIBarva = Sachovnice.barvaNaInt(!barva);
@@ -112,6 +132,10 @@ public class Kral extends Figura{
         return false;
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     public ArrayList<Point> getMozneTahy() {
         int iBarva = Sachovnice.barvaNaInt(barva);
@@ -126,6 +150,19 @@ public class Kral extends Figura{
             }
         }
         return mozneTahy;
+    }
+    
+    /**
+     *
+     * @return
+     */
+    public boolean jeMat(){
+        getMozneTahy();
+        if(mozneTahy.isEmpty()){
+            if(jeKralOhrozen())
+                return true;
+        }
+        return false;
     }
     
     @Override
