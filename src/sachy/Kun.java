@@ -6,73 +6,34 @@ import java.awt.Point;
 import java.util.ArrayList;
 
 /**
- *
- * @author Lukáš
+ *Třída reprezentující šachového koně. Kůň se může pohybovat ve směru tvaru L a
+ * přeskakovat jiné figury
+ * @author Lukáš Grgyga
  */
 public class Kun extends Figura{
-    
-    /**
-     *
-     */
-    public static final int hodnotaFigury = 3;
+
 
     /**
-     *
-     * @param pozice
-     * @param barva
+     *Vytvoří šashového koně dané barvy na zadaných souřadnicích. Pozor, figura se nepřidá
+     * na šachovnici (<code>Sachovnice</code>). Přidat na šachovnici lze metodou šachovnice: <code>pridejFiguru(Figura)</code>
+     * @param pozice Počáteční souřadnice figury
+     * @param barva Barva figury (true = bílá, false = černá)
+     * @param sachovnice Šachovnice, na kterou se má figura přidat
      */
-    public Kun(Point pozice, boolean barva) {
-        super(pozice, barva);
+    public Kun(Point pozice, boolean barva, Sachovnice sachovnice) {
+        super(pozice, barva, 3, sachovnice);
     }
 
-    /**
-     *
-     * @return
-     */
     @Override
     public ArrayList<Point> getMozneTahy() {
         int iBarva = Sachovnice.barvaNaInt(barva);
         mozneTahy.clear();
-        if(Sachovnice.existujeSouradnice(pozice.x + 1 , pozice.y + 2 )){
-            if(sachovnice.jeVolno(pozice.x + 1, pozice.y + 2) != iBarva){       //Pokud na místě nestojí figura stejné barvy
-                mozneTahy.add(new Point(pozice.x + 1, pozice.y + 2));
+        for(Point p : SachoveSmery.getPolePohybuKone(pozice))
+            if(Sachovnice.existujeSouradnice(p)){
+                if(sachovnice.jeVolno(p) != iBarva){                            //Pokud na místě nestojí figura stejné barvy
+                    mozneTahy.add(new Point(p));
+                }
             }
-        }
-        if(Sachovnice.existujeSouradnice(pozice.x + 2 , pozice.y + 1 )){
-            if(sachovnice.jeVolno(pozice.x + 2, pozice.y + 1) != iBarva){
-                mozneTahy.add(new Point(pozice.x + 2, pozice.y + 1));
-            }
-        }
-        if(Sachovnice.existujeSouradnice(pozice.x + 2 , pozice.y - 1 )){
-            if(sachovnice.jeVolno(pozice.x + 2, pozice.y - 1) != iBarva){
-                mozneTahy.add(new Point(pozice.x + 2, pozice.y - 1));
-            }
-        }
-        if(Sachovnice.existujeSouradnice(pozice.x + 1  , pozice.y - 2 )){
-            if(sachovnice.jeVolno(pozice.x + 1, pozice.y - 2) != iBarva){
-                mozneTahy.add(new Point(pozice.x + 1, pozice.y - 2));
-            }
-        }
-        if(Sachovnice.existujeSouradnice(pozice.x - 1 , pozice.y - 2 )){
-            if(sachovnice.jeVolno(pozice.x - 1, pozice.y - 2) != iBarva){
-                mozneTahy.add(new Point(pozice.x - 1, pozice.y - 2));
-            }
-        }
-        if(Sachovnice.existujeSouradnice(pozice.x - 2 , pozice.y - 1 )){
-            if(sachovnice.jeVolno(pozice.x - 2, pozice.y - 1) != iBarva){
-                mozneTahy.add(new Point(pozice.x - 2, pozice.y - 1));
-            }
-        }
-        if(Sachovnice.existujeSouradnice(pozice.x - 2 , pozice.y + 1 )){
-            if(sachovnice.jeVolno(pozice.x - 2, pozice.y + 1) != iBarva){
-                mozneTahy.add(new Point(pozice.x - 2, pozice.y + 1));
-            }
-        }
-        if(Sachovnice.existujeSouradnice(pozice.x - 1 , pozice.y + 2 )){
-            if(sachovnice.jeVolno(pozice.x - 1, pozice.y + 2) != iBarva){
-                mozneTahy.add(new Point(pozice.x - 1, pozice.y + 2));
-            }
-        }
         return mozneTahy;
     }
     

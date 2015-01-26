@@ -16,13 +16,18 @@ public abstract class Figura
     /**
      *Sachovnice na které se daná figura nachází.
      */
-    protected final Sachovnice sachovnice = Sachovnice.getSachovnice();
+    protected final Sachovnice sachovnice;
     
     /**
      *Možné pole šachovnice na které se figura může pohnout, včetně polí, kde vyhodí soupeřovu figuru.
      * Pole se aktualizuje zavoláním metody <code>getMozneTahy()</code>
      */
     protected final ArrayList<Point> mozneTahy = new ArrayList<>();
+    
+    /**
+     *Číselné vyjádření hodnoty figury při hře
+     */
+    public final int hodnotaFigury;
     
     /**
      *Pozice na které se figura nachízí na šachovnici. Může nabývat hotnod x: 1-8, y: 1-8;
@@ -45,10 +50,14 @@ public abstract class Figura
      * na šachovnici (<code>Sachovnice</code>). Přidat na šachovnici lze metodou šachovnice: <code>pridejFiguru(Figura)</code>
      * @param pozice Počáteční souřadnice figury
      * @param barva Barva figury (true = bílá, false = černá)
+     * @param hodnotaFiugry číselné ohodnocení důležitosti figury pro hru
+     * @param sachovnice šachovnice, na které je přidáma figura
      */
-    public Figura(Point pozice, boolean barva){
+    public Figura(Point pozice, boolean barva, int hodnotaFiugry, Sachovnice sachovnice){
         this.pozice = pozice;
         this.barva = barva;
+        this.hodnotaFigury = hodnotaFiugry;
+        this.sachovnice = sachovnice;
     }
     
     /**
@@ -86,8 +95,8 @@ public abstract class Figura
     /**
      *Ověří všechny možnosti tahu figury na standartní šachovnici 8X8. Dále bere v potaz
      * ostatní figury na šachovnici. Mezi možnými tahy jsou také možné tahy na pole, kde stojí
-     * nepřátelská figura(Vyhození figury). Dále bere v potas možné ohrožení svého krále nepřítelem
-     * při svém tahu (Volá metodu jeKralOhrozen() na svém králi (získá odkaz z šachovnice).
+     * nepřátelská figura(Vyhození figury). Dále bere v potaz možné ohrožení svého krále nepřítelem
+     * při svém tahu, odsimuluje každý tah, aby se přesvědčila, že král nebude po jejím přesunu ohrožen.
      * @return Pole možných tahů figury.
      */
     public abstract ArrayList<Point> getMozneTahy();

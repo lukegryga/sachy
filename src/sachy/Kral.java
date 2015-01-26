@@ -6,47 +6,45 @@ import java.awt.Point;
 import java.util.ArrayList;
 
 /**
- *
- * @author Lukáš
+ *Třída reprezenující šachového krále, klíčovou figuru celé šachové hry. Na šachovnice může
+ * být vždy jen jeden král. Král nemá téměř žádný strategický význam. Může se
+ * pohybovat o 1 políčko kterýmkoliv směrem, ale nesmí to pole být ohrožené.
  */
 public class Kral extends Figura{
-    
-    /**
-     *
-     */
-    public static final int hodnotaFigury = 0;
 
     /**
-     *
-     * @param pozice
-     * @param barva
+     *Vytvoří šachového krále dané barvy na zadaných souřadnicích. Pozor, figura se nepřidá
+     * na šachovnici (<code>Sachovnice</code>). Přidat na šachovnici lze metodou šachovnice: <code>pridejFiguru(Figura)</code>
+     * @param pozice Počáteční souřadnice figury
+     * @param barva Barva figury (true = bílá, false = černá)
+     * @param sachovnice Šachovnice, na kterou se má figura přidat
      */
-    public Kral(Point pozice, boolean barva) {
-        super(pozice, barva);
+    public Kral(Point pozice, boolean barva,Sachovnice sachovnice) {
+        super(pozice, barva, 0, sachovnice);
     }
     
     /**
-     *
-     * @return
+     *Zjístí jestli je políčko na kterém král stojí ohroženo nepřátelskými figurami na šachovnici.
+     * @return true - pokud je král ohrožen v opačném případě false
      */
     public boolean jeKralOhrozen(){
         return jeKralOhrozen(pozice);
     }
     
     /**
-     *
-     * @param souradnice
-     * @return
+     *Zjístí jestli je políčko ohroženo nepřátelskými figurami figurami na šachovnici
+     * @param souradnice souřadnice políčka
+     * @return true - pokud je král ohrožen v opačném případě false
      */
     public boolean jeKralOhrozen(Point souradnice){
         int iBarva = Sachovnice.barvaNaInt(barva);
         int negIBarva = Sachovnice.barvaNaInt(!barva);
-        Point zalSourad = (Point) souradnice.clone();                            //Zaloha pozice (kvůli manipulaci s Pointem
+        Point zalSourad = (Point) souradnice.clone();                            //Zaloha pozice (kvůli manipulaci s Pointem)
         //Ověření, jestli krále neohrožuje Střelec, Věž nebo Dáma    
         for(SachoveSmery s : SachoveSmery.values()){
             zalSourad.setLocation(souradnice);
             int vzdalenost = 0;
-            while(Sachovnice.existujeSouradnice(s.premistiPointVeSmeru(zalSourad))){
+            while(Sachovnice.existujeSouradnice(s.premistiPointVeSmeru(zalSourad,1))){
                 vzdalenost++;
                 if(sachovnice.jeVolno(zalSourad) == iBarva){
                     //Aby král nezavazel sám sobě
@@ -59,7 +57,7 @@ public class Kral extends Figura{
                     if(vzdalenost == 1){
                         if(f instanceof Kral)
                             return true;
-                        if(f instanceof Pesec && (s == SachoveSmery.vlevoDolu || s == SachoveSmery.vpravoDolu || s == SachoveSmery.vpravoDolu || s == SachoveSmery.vpravoNahoru))
+                        if(f instanceof Pesec && (((s == SachoveSmery.vlevoDolu || s == SachoveSmery.vlevoDolu) && !barva) || ((s == SachoveSmery.vlevoNahoru || s == SachoveSmery.vpravoNahoru)&& barva)))
                             return true;
                     }
                     if(f instanceof Dama)
@@ -73,75 +71,22 @@ public class Kral extends Figura{
             }
         }
         //Ověření jestli krále neohrožuje kůň
-        zalSourad.setLocation(souradnice.x + 1, souradnice.y + 2);
-        if(Sachovnice.existujeSouradnice(zalSourad)){
-            if(sachovnice.jeVolno(zalSourad) == negIBarva){       //Pokud na místě stojí nepřítel
-                if(sachovnice.vyberFiguru(zalSourad) instanceof Kun)
-                    return true;
+        for(Point p : SachoveSmery.getPolePohybuKone(souradnice))
+            if(Sachovnice.existujeSouradnice(p)){
+                if(sachovnice.jeVolno(p) == negIBarva){                         //Pokud na místě stojí nepřítel
+                    if(sachovnice.vyberFiguru(p) instanceof Kun)
+                        return true;
+                }
             }
-        }
-        zalSourad.setLocation(souradnice.x + 2, souradnice.y + 1);
-        if(Sachovnice.existujeSouradnice(zalSourad)){
-            if(sachovnice.jeVolno(zalSourad) == negIBarva){       //Pokud na místě stojí nepřítel
-                if(sachovnice.vyberFiguru(zalSourad) instanceof Kun)
-                    return true;
-            }
-        }
-        zalSourad.setLocation(souradnice.x + 2, souradnice.y - 1);
-        if(Sachovnice.existujeSouradnice(zalSourad)){
-            if(sachovnice.jeVolno(zalSourad) == negIBarva){       //Pokud na místě stojí nepřítel
-                if(sachovnice.vyberFiguru(zalSourad) instanceof Kun)
-                    return true;
-            }
-        }
-        zalSourad.setLocation(souradnice.x + 1 , souradnice.y - 2);
-        if(Sachovnice.existujeSouradnice(zalSourad)){
-            if(sachovnice.jeVolno(zalSourad) == negIBarva){       //Pokud na místě stojí nepřítel
-                if(sachovnice.vyberFiguru(zalSourad) instanceof Kun)
-                    return true;
-            }
-        }
-        zalSourad.setLocation(souradnice.x - 1 , souradnice.y - 2);
-        if(Sachovnice.existujeSouradnice(zalSourad)){
-            if(sachovnice.jeVolno(zalSourad) == negIBarva){       //Pokud na místě stojí nepřítel
-                if(sachovnice.vyberFiguru(zalSourad) instanceof Kun)
-                    return true;
-            }
-        }
-        zalSourad.setLocation(souradnice.x - 2 , souradnice.y - 1);
-        if(Sachovnice.existujeSouradnice(zalSourad)){
-            if(sachovnice.jeVolno(zalSourad) == negIBarva){       //Pokud na místě stojí nepřítel
-                if(sachovnice.vyberFiguru(zalSourad) instanceof Kun)
-                    return true;
-            }
-        }
-        zalSourad.setLocation(souradnice.x - 2 , souradnice.y + 1);
-        if(Sachovnice.existujeSouradnice(zalSourad)){
-            if(sachovnice.jeVolno(zalSourad) == negIBarva){       //Pokud na místě stojí nepřítel
-                if(sachovnice.vyberFiguru(zalSourad) instanceof Kun)
-                    return true;
-            }
-        }
-        zalSourad.setLocation(souradnice.x - 1 , souradnice.y + 2);
-        if(Sachovnice.existujeSouradnice(zalSourad)){
-            if(sachovnice.jeVolno(zalSourad) == negIBarva){       //Pokud na místě stojí nepřítel
-                if(sachovnice.vyberFiguru(zalSourad) instanceof Kun)
-                    return true;
-            }
-        }
         return false;
     }
 
-    /**
-     *
-     * @return
-     */
     @Override
     public ArrayList<Point> getMozneTahy() {
         int iBarva = Sachovnice.barvaNaInt(barva);
         mozneTahy.clear();
         for(SachoveSmery s : SachoveSmery.values()){
-            Point kPole = s.getPoleVeSmeru(pozice);
+            Point kPole = s.getPoleVeSmeru(pozice,1);
             if(Sachovnice.existujeSouradnice(kPole)){
                 if(!jeKralOhrozen(kPole)){
                     if(sachovnice.jeVolno(kPole) != iBarva)
@@ -153,8 +98,8 @@ public class Kral extends Figura{
     }
     
     /**
-     *
-     * @return
+     *Zístí, jestli je král ohrožen a nemá kam jít
+     * @return true - pokud je král umatován, false v opačném případě
      */
     public boolean jeMat(){
         getMozneTahy();

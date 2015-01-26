@@ -2,34 +2,33 @@
 package sachy;
 
 import java.awt.Point;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 /**
- *
+ *Třidá reprezenující stantartní šachovnici o velikosti 8x8 polí a adresací (A-H)X(1-8).
+ * Šachovnice obsahuje metody pro vytvoření nové hry(Rozmístí figury v základním postavení),
+ * pohyb jednotlivách figur a práci s nimi
+ * Třída má také staticé metody, které slouží hlavě pro převody mezi šachovou adresací
+ * a adresací typu Point.
+ * 
  * @author Lukáš
  */
 public class Sachovnice {
-    private static Sachovnice jedinacek = null;
     
     private final ArrayList<Figura> vyhozeneFigury = new ArrayList<>();
     private final ChessKordinator ChK = ChessKordinator.getChessKordinator();
     
     private final Figura[][] rozmisteni = new Figura[8][8];
-    private Kral k1;                                                            //Bily Kral
-    private Kral k0;                                                            //Cerny Kral
+    private Kral[] kral = new Kral[2];                                            //Králové
     
-    /**
-     *
-     * @return
-     */
-    public static Sachovnice getSachovnice(){
-        if(jedinacek == null){
-            jedinacek = new Sachovnice();
-        }
-        return jedinacek;
+    public Sachovnice(){
     }
     
-    private Sachovnice(){}
+    public void testMethod(){
+        pridejFiguru(new Kral(new Point(2,2), true, this));
+        pridejFiguru(new Kun(new Point(1,5), false, this));
+    }
     
     /**
      *
@@ -37,22 +36,20 @@ public class Sachovnice {
     public void novaHra(){
         boolean pp = false;
         for(int i=1; i<=8; i *= 8){                                             //Cyklus projede dvakrát
-            pp = !pp;                                                               //Pri prvním projetí je pp true, pri druhem false
-            pridejFiguru(new Vez(new Point(1,i*1), pp));
-            pridejFiguru(new Kun(new Point(2,i*1), pp));
-            pridejFiguru(new Strelec(new Point(3,i*1), pp));
-            pridejFiguru(new Dama(new Point(4,i*1), pp));
-            pridejFiguru(new Kral(new Point(5,i*1), pp));
-            pridejFiguru(new Strelec(new Point(6,i*1), pp));
-            pridejFiguru(new Kun(new Point(7,i*1), pp));
-            pridejFiguru(new Vez(new Point(8,i*1), pp));    
+            pp = !pp;                                                           //Pri prvním projetí je pp true, pri druhem false
+            pridejFiguru(new Vez(new Point(1,i*1), pp, this));
+            pridejFiguru(new Kun(new Point(2,i*1), pp, this));
+            pridejFiguru(new Strelec(new Point(3,i*1), pp, this));
+            pridejFiguru(new Dama(new Point(4,i*1), pp, this));
+            pridejFiguru(new Kral(new Point(5,i*1), pp, this));
+            pridejFiguru(new Strelec(new Point(6,i*1), pp, this));
+            pridejFiguru(new Kun(new Point(7,i*1), pp, this));
+            pridejFiguru(new Vez(new Point(8,i*1), pp, this));    
         }
         for(int i=0; i<8; i++){
-            pridejFiguru(new Pesec(new Point(i+1, 2), true));              //Rozestavení bílých pěšců
-            pridejFiguru(new Pesec(new Point(i+1, 7), false));             //Rozestavení černých pěšců
+            pridejFiguru(new Pesec(new Point(i+1, 2), true, this));              //Rozestavení bílých pěšců
+            pridejFiguru(new Pesec(new Point(i+1, 7), false, this));             //Rozestavení černých pěšců
         }
-        k1 = (Kral) rozmisteni[4][0];
-        k0 = (Kral) rozmisteni[4][7];
     }
     
     /**
@@ -62,7 +59,7 @@ public class Sachovnice {
      */
     public Figura vyberFiguru(String souradnice){
         Point pSourad = Sachovnice.souradniceNaPoint(souradnice);
-        return rozmisteni[pSourad.x-1][pSourad.y-1];
+        return vyberFiguru(pSourad);
     }
     
     /**
@@ -71,6 +68,7 @@ public class Sachovnice {
      * @return
      */
     public Figura vyberFiguru(Point souradnice){
+        
         if(!existujeSouradnice(souradnice))
             return null;
         return rozmisteni[souradnice.x-1][souradnice.y-1];
@@ -87,8 +85,8 @@ public class Sachovnice {
         Point kam = souradniceNaPoint(souradnice);
         for(Point policko : figura.getMozneTahy()){                             //Overi, zdali je tah mozny
             if(policko.equals(kam)){                                            //Tak je mozny
-                if(getFiguraNaPozici(kam) != null){                             //Pokud je na policku, kde se táhne, nepřátelská figura
-                    vyhodFiguru(getFiguraNaPozici(kam));
+                if(vyberFiguru(kam) != null){                             //Pokud je na policku, kde se táhne, nepřátelská figura
+                    vyhodFiguru(vyberFiguru(kam));
                     vyhozeni = true;
                 }
                 Point zalSouradnic = figura.getPozice();
@@ -153,6 +151,11 @@ public class Sachovnice {
     public boolean pridejFiguru(Figura f){
         if(!Sachovnice.existujeSouradnice(f.getPozice()))
             return false;
+        if(f instanceof Kral){
+            if((f.barva && getKral(true) != null) || (!f.barva && getKral(false) != null))
+                return false;
+            kral[barvaNaInt(f.barva)] = (Kral) f;
+        }
         rozmisteni[f.getPozice().x -1][f.getPozice().y -1 ] = f;
         return true;
     }
@@ -163,9 +166,7 @@ public class Sachovnice {
      * @return
      */
     public Kral getKral(boolean barva){
-        if(barva)
-            return k1;
-        return k0;
+        return kral[barvaNaInt(barva)];
     }
 
     /**
@@ -230,10 +231,6 @@ public class Sachovnice {
         if(barva)
             return 1;
         return 0;
-    }
-    
-    private Figura getFiguraNaPozici(Point pozice){
-        return rozmisteni[pozice.x-1][pozice.y-1];
     }
     
     private void vyhodFiguru(Figura figura){

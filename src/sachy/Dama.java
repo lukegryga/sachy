@@ -5,124 +5,41 @@ import java.awt.Point;
 import java.util.ArrayList;
 
 /**
- *
- * @author Lukáš
+ *Třída reprezentující šachovou dámu (Nejhodnotnější figuru). Dáma se může pohybovat
+ * všemi osmi směry na jakoukoliv vzdálenost, ale nepřeskakovat přes jiné figury.
+ * @author Lukáš Grgyga
  */
 public class Dama extends Figura{
-    
-    /**
-     *
-     */
-    public static final int hodtnotaFigury = 8;
 
     /**
-     *
-     * @param pozice
-     * @param barva
+     *Vytvoří šachovou dámu dané barvy na zadaných souřadnicích. Pozor, figura se nepřidá
+     * na šachovnici (<code>Sachovnice</code>). Přidat na šachovnici lze metodou šachovnice: <code>pridejFiguru(Figura)</code>
+     * @param pozice Počáteční souřadnice figury
+     * @param barva Barva figury (true = bílá, false = černá)
+     * @param sachovnice Šachovnice, na kterou se má figura přidat
      */
-    public Dama(Point pozice, boolean barva) {
-        super(pozice, barva);
+    public Dama(Point pozice, boolean barva, Sachovnice sachovnice) {
+        super(pozice, barva, 9, sachovnice);
     }
 
-    /**
-     *
-     * @return
-     */
+    
     @Override
     public ArrayList<Point> getMozneTahy() {
         int iBarva = Sachovnice.barvaNaInt(barva);
         mozneTahy.clear();
-        int pXPos = pozice.x;
-        int pYPos = pozice.y;
-        //Ověřování směru vpravo
-        while(Sachovnice.existujeSouradnice(++ pXPos, pYPos )){                 //Pokud souradnice o jedna do prava existuje
-            if(sachovnice.jeVolno(pXPos, pYPos) != iBarva){                     //Pokud na místě nestojí figura stejné barvy
-                    mozneTahy.add(new Point(pXPos, pYPos));
-                if(sachovnice.jeVolno(pXPos, pYPos) != -1){                     //Pokud na míste stojí figura cizí barvy (Není tam przdno)
+        for(SachoveSmery s : SachoveSmery.values()){
+            int vzdalenost = 1;                                                                 //Vdzálenost, která se bude postpně zvyšovat (Postup ve směru) 
+            while(Sachovnice.existujeSouradnice(s.getPoleVeSmeru(pozice, vzdalenost))){         //Pokud souradnice o jedna do prava existuje
+                Point pPoint = s.getPoleVeSmeru(pozice, vzdalenost);
+                if(sachovnice.jeVolno(pPoint) != iBarva){                                       //Pokud na místě nestojí figura stejné barvy
+                        mozneTahy.add(new Point(pPoint));
+                    if(sachovnice.jeVolno(pPoint) != -1){                                       //Pokud na míste stojí figura cizí barvy (Není tam przdno)
+                        break;
+                    }
+                }else
                     break;
-                }
-            }else
-                break;
-        }
-        pXPos = pozice.x;
-        //Ověřování směru vlevo
-        while(Sachovnice.existujeSouradnice(-- pXPos, pYPos )){
-            if(sachovnice.jeVolno(pXPos, pYPos) != iBarva){
-                mozneTahy.add(new Point(pXPos, pYPos));
-                if(sachovnice.jeVolno(pXPos, pYPos) != -1){
-                    break;
-                }
-            }else
-                break;
-        }
-        pXPos = pozice.x;
-        //Ověřování směru nahoru
-        while(Sachovnice.existujeSouradnice(pXPos, ++pYPos )){
-            if(sachovnice.jeVolno(pXPos, pYPos) != iBarva){
-                mozneTahy.add(new Point(pXPos, pYPos));
-                if(sachovnice.jeVolno(pXPos, pYPos) != -1){
-                    break;
-                }
-            }else
-                break;
-        }
-        pYPos = pozice.y;
-        //Ověřování směru dolu
-        while(Sachovnice.existujeSouradnice(pXPos, --pYPos )){
-            if(sachovnice.jeVolno(pXPos, pYPos) != iBarva){
-                mozneTahy.add(new Point(pXPos, pYPos));
-                if(sachovnice.jeVolno(pXPos, pYPos) != -1){
-                    break;
-                }
-            }else
-                break;
-        }
-        pYPos = pozice.y;
-        //Ověřování směru vpravoNahoru
-        while(Sachovnice.existujeSouradnice(++ pXPos,++ pYPos )){               //Pokud souradnice o jedna do pravaNahoru existuje
-            if(sachovnice.jeVolno(pXPos, pYPos) != iBarva){                     //Pokud na místě nestojí figura stejné barvy
-                mozneTahy.add(new Point(pXPos, pYPos));
-                if(sachovnice.jeVolno(pXPos, pYPos) != -1){                     //Pokud na míste stojí figura cizí barvy (Není tam przdno)
-                    break;
-                }
-            }else
-                break;
-        }
-        pXPos = pozice.x;
-        pYPos = pozice.y;
-        //Ověřování směru vpravoDolu
-        while(Sachovnice.existujeSouradnice(++ pXPos,-- pYPos )){
-            if(sachovnice.jeVolno(pXPos, pYPos) != iBarva){
-                mozneTahy.add(new Point(pXPos, pYPos));
-                if(sachovnice.jeVolno(pXPos, pYPos) != -1){
-                    break;
-                }
-            }else
-                break;
-        }
-        pXPos = pozice.x;
-        pYPos = pozice.y;
-        //Ověřování směru vlevoDolu
-        while(Sachovnice.existujeSouradnice(-- pXPos, --pYPos )){
-            if(sachovnice.jeVolno(pXPos, pYPos) != iBarva){
-                mozneTahy.add(new Point(pXPos, pYPos));
-                if(sachovnice.jeVolno(pXPos, pYPos) != -1){
-                    break;
-                }
-            }else
-                break;
-        }
-        pXPos = pozice.x;
-        pYPos = pozice.y;
-        //Ověřování směru vlevoNahoru
-        while(Sachovnice.existujeSouradnice(-- pXPos,++ pYPos )){
-            if(sachovnice.jeVolno(pXPos, pYPos) != iBarva){
-                mozneTahy.add(new Point(pXPos, pYPos));
-                if(sachovnice.jeVolno(pXPos, pYPos) != -1){
-                    break;
-                }
-            }else
-                break;
+                vzdalenost++;
+            }
         }
         return mozneTahy;
     }

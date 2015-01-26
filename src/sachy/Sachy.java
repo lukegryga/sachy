@@ -7,6 +7,8 @@ package sachy;
 
 import java.util.Scanner;
 
+
+
 /**
  *
  * @author Lukáš
@@ -19,8 +21,8 @@ public class Sachy {
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) {
-        ChM.zacniHru();
+    public static void main(String[] args) throws InterruptedException{
+       ChM.test();
     }        
     
 }

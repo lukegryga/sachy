@@ -1,37 +1,29 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package sachy;
 
 import java.awt.Point;
 import java.util.ArrayList;
 
 /**
- *
- * @author Lukáš
+ *Třída reprezentující šachového pěšce. Pěšec se může pohybovat přímo před sebe,
+ * ale brát figury jen do šikma. Pohybovat se vždy o jedno políčko. Když dojede
+ * na druhý konec šachovnice, může se změnit v kteroukoliv Figuru
+ * @author Lukáš Grgyga
  */
 public class Pesec extends Figura{
-    
-    /**
-     *
-     */
-    public static final int hodnotaFigury = 1;
+
 
     /**
-     *
-     * @param pozice
-     * @param barva
+     *Vytvoří šachového pěšce dané barvy na zadaných souřadnicích. Pozor, figura se nepřidá
+     * na šachovnici (<code>Sachovnice</code>). Přidat na šachovnici lze metodou šachovnice: <code>pridejFiguru(Figura)</code>
+     * @param pozice Počáteční souřadnice figury
+     * @param barva Barva figury (true = bílá, false = černá)
+     * @param sachovnice Šachovnice, na kterou se má figura přidat
      */
-    public Pesec(Point pozice, boolean barva) {
-        super(pozice, barva);
+    public Pesec(Point pozice, boolean barva, Sachovnice sachovnice) {
+        super(pozice, barva, 1, sachovnice);
     }
     
-    /**
-     *
-     * @return
-     */
     @Override
     public ArrayList<Point> getMozneTahy(){
         mozneTahy.clear();
