@@ -2,8 +2,8 @@
 package sachy;
 
 import java.awt.Point;
-import java.lang.reflect.Array;
-import java.util.ArrayList;
+import java.util.Deque;
+import java.util.LinkedList;
 
 /**
  *Třidá reprezenující stantartní šachovnici o velikosti 8x8 polí a adresací (A-H)X(1-8).
@@ -16,12 +16,16 @@ import java.util.ArrayList;
  */
 public class Sachovnice {
     
-    private final ArrayList<Figura> vyhozeneFigury = new ArrayList<>();
+    private final Deque<Figura> vyhozeneFigury = new LinkedList<>();
     private final ChessKordinator ChK = ChessKordinator.getChessKordinator();
     
     private final Figura[][] rozmisteni = new Figura[8][8];
-    private Kral[] kral = new Kral[2];                                            //Králové
+    private final Kral[] kral = new Kral[2];                                            //Králové
+    private final Deque<SachTah> tahy = new LinkedList<>();
     
+    /**
+     *Vytvorí instanci šachovnice. Šachovnic může být i více a na každé může probíhat jiná hra
+     */
     public Sachovnice(){
     }
     
@@ -31,7 +35,7 @@ public class Sachovnice {
     }
     
     /**
-     *
+     *Připraví figury na šachovnici pro novou hru
      */
     public void novaHra(){
         boolean pp = false;
@@ -53,9 +57,9 @@ public class Sachovnice {
     }
     
     /**
-     *
-     * @param souradnice
-     * @return
+     *Vrátí figuru na zadaných souřadnicích. POkud jsou souřadnice špatně zadny vrací null
+     * @param souradnice Šachové souřadnice, ze kterých získáváme figuru
+     * @return figuru ze souřadnic, v případě nenalezeí figury vrací null
      */
     public Figura vyberFiguru(String souradnice){
         Point pSourad = Sachovnice.souradniceNaPoint(souradnice);
@@ -63,9 +67,9 @@ public class Sachovnice {
     }
     
     /**
-     *
-     * @param souradnice
-     * @return
+     *Vrátí figuru na zadaných souřadnicích. POkud jsou souřadnice špatně zadny vrací null
+     * @param souradnice souřadnice, ze kterých získáváme figuru
+     * @return figuru ze souřadnic, v případě nenalezeí figury vrací null
      */
     public Figura vyberFiguru(Point souradnice){
         
@@ -75,43 +79,56 @@ public class Sachovnice {
     }
     
     /**
-     *
+     *Provede Šachový tah. Přesune figuru na nové souřadnice a ze starých souřadnic figuru
+     * smaže. Pokud je nepřátelská figura vyhozena tak jí uloží do vyhozených figur pro
+     * případné vrácení tahu
      * @param figura
      * @param souradnice
-     * @return
+     * @return true pokud tah proběhl úspěšne, false v opačném případě
      */
     public boolean tahni(Figura figura, String souradnice){
         boolean vyhozeni = false;
         Point kam = souradniceNaPoint(souradnice);
         for(Point policko : figura.getMozneTahy()){                             //Overi, zdali je tah mozny
             if(policko.equals(kam)){                                            //Tak je mozny
-                if(vyberFiguru(kam) != null){                             //Pokud je na policku, kde se táhne, nepřátelská figura
+                if(vyberFiguru(kam) != null){                                   //Pokud je na policku, kde se táhne, nepřátelská figura
                     vyhodFiguru(vyberFiguru(kam));
                     vyhozeni = true;
                 }
-                Point zalSouradnic = figura.getPozice();
-                rozmisteni[figura.getPozice().x-1][figura.getPozice().y-1] = null;
-                rozmisteni[kam.x-1][kam.y-1] = figura;
-                figura.setPozice(kam);
-                if(getKral(figura.barva).jeKralOhrozen()){
-                    rozmisteni[zalSouradnic.x-1][zalSouradnic.y-1] = figura;
-                    if(vyhozeni)
-                        vratPosledniVyhozFiguru();
-                    else
-                        rozmisteni[figura.getPozice().x-1][figura.getPozice().y-1] = null;
-                    figura.setPozice(zalSouradnic);
-                    return false;
-                }
-                return true;
+                SachTah tah = new SachTah(figura, figura.getPozice(), kam, 0, vyhozeni);
+                tahy.add(tah);
+                rozmisteni[figura.getPozice().x-1][figura.getPozice().y-1] = null;  //Nastaví původní políčko figury na null
+                rozmisteni[kam.x-1][kam.y-1] = figura;                              //Umístí Figuru na táhnuté políčko
+                figura.setPozice(kam);                                              //Nastaví nové souřadnice Figury
             }
         }
         return false;
     }
+    
+    /**
+     *Vrátí šachovnici do stavu před posledním táhnutím
+     * @return true-pokud proces proběhl úspěšně false pokud již není co vracet
+     */
+    public boolean vratTah(){
+        SachTah t = tahy.poll();
+        if(t==null)
+            return false;
+        Figura f = t.getFigura();
+        rozmisteni[t.getOdKud().x-1][t.getOdKud().y-1] = f;
+        f.setPozice(t.getOdKud());
+        if(t.isVyhozena()){
+            Figura fVyhoz = vratVyhozFiguru();                                  //Získá poslední vyhozenou figuru a smaze ji ze zásobníku
+            rozmisteni[fVyhoz.getPozice().x -1][fVyhoz.getPozice().y -1] = fVyhoz;
+        }
+        t.tahZpet();                                                            //Informuje SachTahy o tahu z5
+    return false;
+    }
 
     /**
-     *
-     * @param pozice
-     * @return
+     *Zjistí, jaká figura na zadaných souřadnicích stojí, nebo jestli je souřadnice prázdná.
+     * @param pozice pozice zjišťovaného pole
+     * @return 1-bílá figura, 0-čarná figura, -1-na políčku je volno
+     * @throws IllegalArgumentException Vyhodí, pokud na šachovnici neexistuje zadaná souřadnice
      */
     public int jeVolno(Point pozice){
         if(!existujeSouradnice(pozice)){
@@ -126,10 +143,11 @@ public class Sachovnice {
     }
     
     /**
-     *
-     * @param x
-     * @param y
-     * @return
+     *Zjistí, jaká figura na zadaných souřadnicích stojí, nebo jestli je souřadnice prázdná.
+     * @param x x-ová souřadnice
+     * @param y y-ová souřadnice
+     * @return 1-bílá figura, 0-čarná figura, -1-na políčku je volno
+     * @throws IllegalArgumentException Vyhodí, pokud na šachovnici neexistuje zadaná souřadnice
      */
     public int jeVolno(int x, int y){
         if(!existujeSouradnice(x, y)){
@@ -144,16 +162,21 @@ public class Sachovnice {
     }
     
     /**
-     *
-     * @param f
-     * @return
+     *Umístí figuru na šachovnici na souřadnice zadané figury.
+     * Metoda také může vymazat původní figuru na souřadnicích zadané figury.
+     * @param f Figura, která má být umístěna na šachovnici
+     * @return true pokud byla figura úspěšně přidána, false v opačném případě
      */
     public boolean pridejFiguru(Figura f){
-        if(!Sachovnice.existujeSouradnice(f.getPozice()))
+        if(!Sachovnice.existujeSouradnice(f.getPozice())){
+            System.err.println("Figura nelze umístit na šahocnici kvůli jejím souřadnicím!");
             return false;
+        }
         if(f instanceof Kral){
-            if((f.barva && getKral(true) != null) || (!f.barva && getKral(false) != null))
+            if((f.barva && getKral(true) != null) || (!f.barva && getKral(false) != null)){
+                System.err.println("Nemůžete přidat na jednu šachovnici 2 krále stejné barvy!");
                 return false;
+            }
             kral[barvaNaInt(f.barva)] = (Kral) f;
         }
         rozmisteni[f.getPozice().x -1][f.getPozice().y -1 ] = f;
@@ -161,24 +184,26 @@ public class Sachovnice {
     }
     
     /**
-     *
+     *Získá krále dané barvy.
      * @param barva
-     * @return
+     * @return bílý nebo černý král
      */
     public Kral getKral(boolean barva){
         return kral[barvaNaInt(barva)];
     }
 
     /**
-     *
-     * @param tah
-     * @return
+     *Převede šachové vyjádření souřadnic do číselného.
+     * př. "A2" => p.x=1 p.x=2
+     * @param souradnice souřadnice, které ze ktarých se určí hodnota.
+     * @return Číselně vyjádřené souřadnice
+     * @throws IllegalArgumentException Vyhodí, pokud na šachovnici neexistuje zadaná souřadnice
      */
-    public static Point souradniceNaPoint(String tah){
-        tah = tah.toLowerCase();
-        char[] pozice = tah.toCharArray();
+    public static Point souradniceNaPoint(String souradnice){
+        souradnice = souradnice.toLowerCase();
+        char[] pozice = souradnice.toCharArray();
         if(pozice.length != 2){
-            throw new IllegalArgumentException("Neplanty řetězec");
+            throw new IllegalArgumentException("Neplanty řetězec");  
         }
         int x = pozice[0] - 96;
         int y = pozice[1] - '0';
@@ -189,9 +214,11 @@ public class Sachovnice {
     }
     
     /**
-     *
-     * @param souradnice
-     * @return
+     *Převede zadané číselné souřadnice do šachových
+     * př. p.x=1 p.x=2 => "A2"
+     * @param souradnice souřadnice, které ze ktarých se určí hodnota.
+     * @return šachově vyjdřené souřadnice
+     * @throws IllegalArgumentException Vyhodí, pokud na šachovnici neexistuje zadaná souřadnice
      */
     public static String pointNaSouradnice(Point souradnice){
         if(!existujeSouradnice(souradnice)){
@@ -204,28 +231,28 @@ public class Sachovnice {
     }
     
     /**
-     *
+     *Zjístí, zdali na šachovnice 8x8 existuje zadaná souřadnice
      * @param souradnice
-     * @return
+     * @return true pokud se souřadnice na šachovnici standartní šachovnici nachází,false v opačném případě
      */
     public static boolean existujeSouradnice(Point souradnice){
         return !((souradnice.x >= 9 || souradnice.x <= 0) || (souradnice.y >= 9 || souradnice.y <= 0));
     }
 
     /**
-     *
-     * @param x
-     * @param y
-     * @return
+     *Zjístí, zdali na šachovnice 8x8 existuje zadaná souřadnice
+     * @param x x-ová souřadnice
+     * @param y y-ová souřadnice
+     * @return true pokud se souřadnice na šachovnici standartní šachovnici nachází,false v opačném případě
      */
     public static boolean existujeSouradnice(int x, int y){
         return !((x >= 9 || x <= 0) || (y >= 9 || y <= 0));
     }
     
     /**
-     *
-     * @param barva
-     * @return
+     *Vrátí číselné zastoupení byrvy figury
+     * @param barva barva figury
+     * @return 1-bílá, 0-čarná
      */
     public static int barvaNaInt(boolean barva){
         if(barva)
@@ -233,14 +260,20 @@ public class Sachovnice {
         return 0;
     }
     
+    /*
+     * Vyhodí figuru z šachovnice tzn. zařadí jí mezi vyhozené a nastaví jí vyhozena true
+     */
     private void vyhodFiguru(Figura figura){
         figura.setVyhozena(true);
         vyhozeneFigury.add(figura);
     }
-    
-    private void vratPosledniVyhozFiguru(){
-        pridejFiguru(vyhozeneFigury.get(vyhozeneFigury.size()));
-        vyhozeneFigury.remove(vyhozeneFigury.size());
+    /*
+     * Vrátí poslední vyhozenou figuru a nastaví jí vyhozena na false
+     */
+    private Figura vratVyhozFiguru(){
+        Figura f = vyhozeneFigury.poll();
+        f.setVyhozena(false);
+        return f;
     }
     
 }
