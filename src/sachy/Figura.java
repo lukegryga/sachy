@@ -91,6 +91,15 @@ public abstract class Figura
     public boolean isVyhozena(){
         return vyhozena;
     }
+    /**
+     * @return 2 mala(pro černou figuru)/ velka(pro bílou figuru) pocatecni pismena nazvu figury
+     */
+    public String vratVykresli(){
+        String s = toString().substring(0, 2);
+        if(barva)
+            return s.toUpperCase();
+        return s.toLowerCase();
+    }
     
     /**
      *Ověří všechny možnosti tahu figury na standartní šachovnici 8X8. Dále bere v potaz

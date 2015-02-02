@@ -31,8 +31,10 @@ public class Dama extends Figura{
             int vzdalenost = 1;                                                                 //Vdzálenost, která se bude postpně zvyšovat (Postup ve směru) 
             while(Sachovnice.existujeSouradnice(s.getPoleVeSmeru(pozice, vzdalenost))){         //Pokud souradnice o jedna do prava existuje
                 Point pPoint = s.getPoleVeSmeru(pozice, vzdalenost);
-                if(sachovnice.jeVolno(pPoint) != iBarva){                                       //Pokud na místě nestojí figura stejné barvy
+                if(sachovnice.jeVolno(pPoint) != iBarva){                                       //Pokud na místě nestojí figura stejné barvy                                           
+                    if(!sachovnice.simTahOverKrale(this, pPoint)){                        
                         mozneTahy.add(new Point(pPoint));
+                    }                                                    
                     if(sachovnice.jeVolno(pPoint) != -1){                                       //Pokud na míste stojí figura cizí barvy (Není tam przdno)
                         break;
                     }

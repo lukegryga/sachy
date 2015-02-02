@@ -28,10 +28,12 @@ public class Kun extends Figura{
     public ArrayList<Point> getMozneTahy() {
         int iBarva = Sachovnice.barvaNaInt(barva);
         mozneTahy.clear();
-        for(Point p : SachoveSmery.getPolePohybuKone(pozice))
-            if(Sachovnice.existujeSouradnice(p)){
-                if(sachovnice.jeVolno(p) != iBarva){                            //Pokud na místě nestojí figura stejné barvy
-                    mozneTahy.add(new Point(p));
+        for(Point pPoint : SachoveSmery.getPolePohybuKone(pozice))
+            if(Sachovnice.existujeSouradnice(pPoint)){
+                if(sachovnice.jeVolno(pPoint) != iBarva){                            //Pokud na místě nestojí figura stejné barvy                                          
+                    if(!sachovnice.simTahOverKrale(this, pPoint)){                        
+                        mozneTahy.add(new Point(pPoint));
+                    }
                 }
             }
         return mozneTahy;

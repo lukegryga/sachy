@@ -29,11 +29,6 @@ public class Sachovnice {
     public Sachovnice(){
     }
     
-    public void testMethod(){
-        pridejFiguru(new Kral(new Point(2,2), true, this));
-        pridejFiguru(new Kun(new Point(1,5), false, this));
-    }
-    
     /**
      *Připraví figury na šachovnici pro novou hru
      */
@@ -82,13 +77,27 @@ public class Sachovnice {
      *Provede Šachový tah. Přesune figuru na nové souřadnice a ze starých souřadnic figuru
      * smaže. Pokud je nepřátelská figura vyhozena tak jí uloží do vyhozených figur pro
      * případné vrácení tahu
-     * @param figura
-     * @param souradnice
+     * @param figura figura, kterou se má táhnout
+     * @param souradnice kam se má figurou táhnout
+     * @throws IllegalArgumentException pokud jsou nesmyslně zadány souřadnice
      * @return true pokud tah proběhl úspěšne, false v opačném případě
      */
-    public boolean tahni(Figura figura, String souradnice){
+    public boolean tahni(Figura figura, String souradnice) throws IllegalArgumentException{
         boolean vyhozeni = false;
         Point kam = souradniceNaPoint(souradnice);
+        return tahni(figura,kam);
+    }
+    
+    /**
+     *Provede Šachový tah. Přesune figuru na nové souřadnice a ze starých souřadnic figuru
+     * smaže. Pokud je nepřátelská figura vyhozena tak jí uloží do vyhozených figur pro
+     * případné vrácení tahu
+     * @param figura figura, kterou se má táhnout
+     * @param kam kam se má figurou táhnout
+     * @return true pokud tah proběhl úspěšne, false v opačném případě
+     */
+    public boolean tahni(Figura figura, Point kam){
+        boolean vyhozeni = false;
         for(Point policko : figura.getMozneTahy()){                             //Overi, zdali je tah mozny
             if(policko.equals(kam)){                                            //Tak je mozny
                 if(vyberFiguru(kam) != null){                                   //Pokud je na policku, kde se táhne, nepřátelská figura
@@ -100,10 +109,13 @@ public class Sachovnice {
                 rozmisteni[figura.getPozice().x-1][figura.getPozice().y-1] = null;  //Nastaví původní políčko figury na null
                 rozmisteni[kam.x-1][kam.y-1] = figura;                              //Umístí Figuru na táhnuté políčko
                 figura.setPozice(kam);                                              //Nastaví nové souřadnice Figury
+                return true;
             }
         }
         return false;
     }
+    
+    
     
     /**
      *Vrátí šachovnici do stavu před posledním táhnutím
@@ -122,6 +134,28 @@ public class Sachovnice {
         }
         t.tahZpet();                                                            //Informuje SachTahy o tahu z5
     return false;
+    }
+    
+    /**
+     * Provede jakýkoliv tah a ověří zda král barvy figury není ohrožen.
+     * @param figura figura, kterou se táhne
+     * @param kam kam má figura táhnout
+     * @return false, když král není ohrožen, true v opačném případě.
+     */
+    public boolean simTahOverKrale(Figura figura, Point kam) throws IllegalArgumentException{
+        boolean kralOhrozen;
+        Figura vyhozena = null;
+        if(!existujeSouradnice(kam))
+            throw new IllegalArgumentException("Pole na ze kterých, nebo na které se má táhnout neexistují");
+        if(vyberFiguru(kam) != null){
+            vyhozena = vyberFiguru(kam);
+        }
+        rozmisteni[figura.getPozice().x-1][figura.getPozice().y-1] = null;      //Nastaví původní políčko figury na null
+        rozmisteni[kam.x-1][kam.y-1] = figura;                                  //Umístí Figuru na táhnuté políčko
+        kralOhrozen = getKral(figura.barva).jeKralOhrozen();
+        rozmisteni[figura.getPozice().x-1][figura.getPozice().y-1] = figura;    //Vrati Figuru z5
+        rozmisteni[kam.x-1][kam.y-1] = vyhozena;                                //políčko kam vrátí do původního stavu
+        return kralOhrozen;
     }
 
     /**
@@ -190,6 +224,21 @@ public class Sachovnice {
      */
     public Kral getKral(boolean barva){
         return kral[barvaNaInt(barva)];
+    }
+    
+    /**
+     * Vykreslí šachovnici do konzole
+     */
+    public void vykresliAsciiSachovnici(){
+        for(int i = 7;i >= 0; i--){
+            for(int j = 0;j < 8; j++){
+                if(rozmisteni[j][i] == null)
+                    System.out.printf(" OO ");
+                else
+                    System.out.printf(" " + rozmisteni[j][i].vratVykresli() + " ");
+            }
+            System.out.printf("\n");
+        }
     }
 
     /**

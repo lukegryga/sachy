@@ -105,10 +105,11 @@ public enum SachoveSmery {
      * @return 8 možných polí, na které může kůň (Směr ve tvaru L)
      */
     public static Point[] getPolePohybuKone(Point poziceKone){
+        Point[] tahyKone = new Point[8];
         for(int i = 0; i<8;i++){
-            kun[i] = new Point(poziceKone.x + kun[i].x, poziceKone.y + kun[i].y);
+            tahyKone[i] = new Point(poziceKone.x + kun[i].x, poziceKone.y + kun[i].y);
         }
-        return kun;
+        return tahyKone;
     }
     
 }

@@ -33,8 +33,10 @@ public class Strelec extends Figura{
             if(!s.primySmer){
                 while(Sachovnice.existujeSouradnice(s.getPoleVeSmeru(pozice, vzdalenost))){                 //Pokud souradnice o jedna do pravaNahoru existuje
                     Point pPoint = s.getPoleVeSmeru(pozice, vzdalenost);
-                    if(sachovnice.jeVolno(pPoint) != iBarva){                     //Pokud na místě nestojí figura stejné barvy
-                        mozneTahy.add(pPoint);
+                    if(sachovnice.jeVolno(pPoint) != iBarva){                     //Pokud na místě nestojí figura stejné barvy                                         
+                        if(!sachovnice.simTahOverKrale(this, pPoint)){                        
+                            mozneTahy.add(new Point(pPoint));
+                        }
                         if(sachovnice.jeVolno(pPoint) != -1){                     //Pokud na míste stojí figura cizí barvy (Není tam przdno)
                             break;
                         }
