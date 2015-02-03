@@ -11,7 +11,7 @@ public class ChessKordinator {
     
     private static ChessKordinator jedinacek;
     
-    private final Scanner sc = new Scanner(System.in, "windows-1250");
+    private final Scanner sc = new Scanner(System.in, "utf-8");
     
     private Sachovnice sachovnice;
     private SachHrac hrac0;

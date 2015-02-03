@@ -15,7 +15,7 @@ import java.util.Scanner;
  */
 public class Sachy {
     
-    private static final Scanner sc = new Scanner(System.in, "windows-1250");
+    private static final Scanner sc = new Scanner(System.in, "utf-8");
     private static final ChessKordinator ChM = ChessKordinator.getChessKordinator();
 
     /**
