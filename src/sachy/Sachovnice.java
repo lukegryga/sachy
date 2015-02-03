@@ -273,10 +273,10 @@ public class Sachovnice {
         if(!existujeSouradnice(souradnice)){
             throw new IllegalArgumentException("Neexistující souřadnice");
         }
-        char posX = (char) (souradnice.x + 96);
+        char posX = (char) (souradnice.x + 64);
         String posY = Integer.toString(souradnice.y);
         
-        return String.join("", String.valueOf(posX).toUpperCase(), posY);
+        return posX + posY;
     }
     
     /**
