@@ -1,6 +1,8 @@
 
 package sachy;
 
+import java.awt.Graphics;
+import java.awt.Image;
 import java.awt.Point;
 import java.util.ArrayList;
 
@@ -109,5 +111,11 @@ public abstract class Figura
      * @return Pole možných tahů figury.
      */
     public abstract ArrayList<Point> getMozneTahy();
+    
+    /**
+     * Vrátí obrázek své figury
+     * @return obrázek své figury
+     */
+    public abstract Image getImage();
     
 }

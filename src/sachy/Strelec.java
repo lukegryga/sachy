@@ -2,8 +2,13 @@
 
 package sachy;
 
+import java.awt.Graphics;
+import java.awt.Image;
 import java.awt.Point;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+import javax.imageio.ImageIO;
 
 /**
  *Třída reprezentující šachového střelce. Střelec se pohybuje po diagonálách a 
@@ -53,6 +58,20 @@ public class Strelec extends Figura{
     @Override
     public String toString(){
         return "Střelec:" + Sachovnice.pointNaSouradnice(pozice);
+    }
+    
+    @Override
+    public Image getImage() {
+        try {
+            if(barva)
+                return ImageIO.read(new File("src\\chessFigures\\whiteBishop.png"));
+            else
+                return ImageIO.read(new File("src\\chessFigures\\blackBishop.png"));
+        } catch (IOException ex) {
+            System.err.println("Nenalezen obrázek střelce, nemůže se vykreslit");
+            System.err.println(ex.getMessage());
+        }
+        return null;
     }
     
 }

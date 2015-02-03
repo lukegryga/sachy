@@ -1,8 +1,13 @@
 
 package sachy;
 
+import java.awt.Graphics;
+import java.awt.Image;
 import java.awt.Point;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+import javax.imageio.ImageIO;
 
 /**
  *Třída reprezentující šachového pěšce. Pěšec se může pohybovat přímo před sebe,
@@ -80,5 +85,19 @@ public class Pesec extends Figura{
     @Override
     public String toString(){
         return "Pešec:" + Sachovnice.pointNaSouradnice(pozice);
+    }
+    
+    @Override
+    public Image getImage() {
+        try {
+            if(barva)
+                return ImageIO.read(new File("src\\chessFigures\\whitePawn.png"));
+            else
+                return ImageIO.read(new File("src\\chessFigures\\blackPawn.png"));
+        } catch (IOException ex) {
+            System.err.println("Nenalezen obrázek pěšce, nemůže se vykreslit");
+            System.err.println(ex.getMessage());
+        }
+        return null;
     }
 }

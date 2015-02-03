@@ -1,8 +1,13 @@
 
 package sachy;
 
+import java.awt.Graphics;
+import java.awt.Image;
 import java.awt.Point;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+import javax.imageio.ImageIO;
 
 /**
  *Třída reprezentující šachovou věž. Vež se pohybuje vodorovně něbo svisle,
@@ -55,4 +60,17 @@ public class Vez extends Figura {
         return "Věž:" + Sachovnice.pointNaSouradnice(pozice);
     }
     
+    @Override
+    public Image getImage() {
+        try {
+            if(barva)
+                return ImageIO.read(new File("src\\chessFigures\\whiteRook.png"));
+            else
+                return ImageIO.read(new File("src\\chessFigures\\blackRook.png"));
+        } catch (IOException ex) {
+            System.err.println("Nenalezen obrázek věže, nemůže se vykreslit");
+            System.err.println(ex.getMessage());
+        }
+        return null;
+    }
 }

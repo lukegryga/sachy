@@ -240,6 +240,15 @@ public class Sachovnice {
             System.out.printf("\n");
         }
     }
+    
+    /**
+     * Vrátí rozmístění figur na dané šachovnici.
+     * Nedoporučuje se s figurami během hry manipulovat
+     * @return rozmístění figur na dané šachovnici
+     */
+    public Figura[][] getRozmisteniFigur(){
+        return rozmisteni;
+    }
 
     /**
      *Převede šachové vyjádření souřadnic do číselného.

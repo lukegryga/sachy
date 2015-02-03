@@ -2,8 +2,13 @@
 
 package sachy;
 
+import java.awt.Graphics;
+import java.awt.Image;
 import java.awt.Point;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+import javax.imageio.ImageIO;
 
 /**
  *Třída reprezenující šachového krále, klíčovou figuru celé šachové hry. Na šachovnice může
@@ -113,6 +118,20 @@ public class Kral extends Figura{
     @Override
     public String toString(){
         return "Král:" + Sachovnice.pointNaSouradnice(pozice);
+    }
+    
+    @Override
+    public Image getImage() {
+        try {
+            if(barva)
+                return ImageIO.read(new File("src\\chessFigures\\whiteKing.png"));
+            else
+                return ImageIO.read(new File("src\\chessFigures\\blackKing.png"));
+        } catch (IOException ex) {
+            System.err.println("Nenalezen obrázek krále, nemůže se vykreslit");
+            System.err.println(ex.getMessage());
+        }
+        return null;
     }
     
 }

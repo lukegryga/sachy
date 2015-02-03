@@ -1,8 +1,13 @@
 
 package sachy;
 
+import java.awt.Graphics;
+import java.awt.Image;
 import java.awt.Point;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+import javax.imageio.ImageIO;
 
 /**
  *Třída reprezentující šachovou dámu (Nejhodnotnější figuru). Dáma se může pohybovat
@@ -49,6 +54,20 @@ public class Dama extends Figura{
     @Override
     public String toString(){
         return "Dáma:" + Sachovnice.pointNaSouradnice(pozice);
+    }
+
+    @Override
+    public Image getImage() {
+        try {
+            if(barva)
+                return ImageIO.read(new File("src\\chessFigures\\whiteQueen.png"));
+            else
+                return ImageIO.read(new File("src\\chessFigures\\blackQueen.png"));
+        } catch (IOException ex) {
+            System.err.println("Nenalezen obrázek dámy, nemůže se vykreslit");
+            System.err.println(ex.getMessage());
+        }
+        return null;
     }
     
 }

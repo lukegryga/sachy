@@ -13,6 +13,7 @@ public class ChessKordinator {
     
     private final Scanner sc = new Scanner(System.in, "utf-8");
     
+    GraphicsInterface GUI;
     private Sachovnice sachovnice;
     private SachHrac hrac0;
     private SachHrac hrac1;
@@ -36,9 +37,10 @@ public class ChessKordinator {
     public void hrej(){
         hra = true;
         sachovnice = new Sachovnice();
+        GUI = new GraphicsInterface(sachovnice);
         sachovnice.novaHra();
-        hrac1 = initHrac("Zadejte jmeno černého hráče:", true);
-        hrac0 = initHrac("Zadejte jmeno bílého hráče:", false);
+        hrac1 = initHrac("Zadejte jmeno bílého hráče:", true);
+        hrac0 = initHrac("Zadejte jmeno černého hráče:", false);
         hracNaTahu = hrac1;
         System.out.println("----Začíná nová hra----");
         System.out.println(hrac1 + " vs. " + hrac0);
@@ -65,6 +67,7 @@ public class ChessKordinator {
         f = vyberFiguru(hracNaTahu.isBarva());
         tahni(f);
         sachovnice.vykresliAsciiSachovnici();
+        GUI.prekresli();
         return sachovnice.getKral(!hracNaTahu.isBarva()).jeMat();
     }
     
@@ -85,23 +88,32 @@ public class ChessKordinator {
                     System.out.printf("Nemůžete vybrat figuru jiné barvy");
                     neuspeh = true;
                 }
-                if(f.getMozneTahy().isEmpty()){
-                    System.out.printf("Figura nemůže nikam táhnout, vyberte jinou");
-                    neuspeh = true;
-                }
             }else{
                 System.out.printf("Na políčku nestojí žádná figura");
             }
         }while(neuspeh);
         return f;
     }
-    
+    /*tahne, nebo změni vybranou figuru*/
     private void tahni(Figura f){
-        boolean neuspeh = true;
+        boolean neuspeh = true; //Pro smyšku neúspěšnýc tahů
+        boolean opetVybrana; // Pro smyčku vybírání jiné figury
+        String kam = null;
         do{
-            System.out.printf("\n" + f + " -> Kam chcete táhnout:");
             try{
-                if(sachovnice.tahni(f, sc.next())){
+                do{
+                    opetVybrana = false;
+                    System.out.printf("\n" + f + " -> Kam chcete táhnout:");
+                    kam = sc.next();
+                    if(sachovnice.jeVolno(Sachovnice.souradniceNaPoint(kam)) == Sachovnice.barvaNaInt(f.barva)){
+                        f = sachovnice.vyberFiguru(kam);
+                        System.out.println("Vybral jste jinou figuru!");
+                        System.out.println("Správná šachista když už se figury dotkne tak hraje");
+                        System.out.println("Vybraná figura je nyní:" + f);
+                        opetVybrana = true;
+                    }
+                }while(opetVybrana);
+                if(sachovnice.tahni(f, kam)){
                     neuspeh = false;
                 }else{
                     System.out.println("Na políčko nelze táhnout!!!");

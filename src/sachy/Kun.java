@@ -2,8 +2,13 @@
 
 package sachy;
 
+import java.awt.Graphics;
+import java.awt.Image;
 import java.awt.Point;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+import javax.imageio.ImageIO;
 
 /**
  *Třída reprezentující šachového koně. Kůň se může pohybovat ve směru tvaru L a
@@ -42,6 +47,20 @@ public class Kun extends Figura{
     @Override
     public String toString(){
         return "Kůň:" + Sachovnice.pointNaSouradnice(pozice);
+    }
+    
+    @Override
+    public Image getImage() {
+        try {
+            if(barva)
+                return ImageIO.read(new File("src\\chessFigures\\whiteHorse.png"));
+            else
+                return ImageIO.read(new File("src\\chessFigures\\blackHorse.png"));
+        } catch (IOException ex) {
+            System.err.println("Nenalezen obrázek koně, nemůže se vykreslit");
+            System.err.println(ex.getMessage());
+        }
+        return null;
     }
     
 }
