@@ -45,6 +45,13 @@ public class SachTah {
     }
     
     /**
+     * @return Aktuální číslo Tahu
+     */
+    public static int getTah(){
+        return tah;
+    }
+    
+    /**
      * @return true-pokud při tomto tahu byla vyhozena Figura
      */
     public boolean isVyhozena(){
@@ -92,5 +99,6 @@ public class SachTah {
     public void tahZpet(){
         tah --;
     }
+    
 
 }

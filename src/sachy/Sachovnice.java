@@ -2,6 +2,7 @@
 package sachy;
 
 import java.awt.Point;
+import java.io.IOException;
 import java.util.Deque;
 import java.util.LinkedList;
 
@@ -17,16 +18,29 @@ import java.util.LinkedList;
 public class Sachovnice {
     
     private final Deque<Figura> vyhozeneFigury = new LinkedList<>();
+    private final Deque<SachTah> tahy = new LinkedList<>();
     private final ChessKordinator ChK = ChessKordinator.getChessKordinator();
+    private final Database database = new Database();
     
     private final Figura[][] rozmisteni = new Figura[8][8];
     private final Kral[] kral = new Kral[2];                                            //Králové
-    private final Deque<SachTah> tahy = new LinkedList<>();
+    private final SachHrac[] hraci = new SachHrac[2];
+    
     
     /**
      *Vytvorí instanci šachovnice. Šachovnic může být i více a na každé může probíhat jiná hra
      */
     public Sachovnice(){
+        this(null, null);
+    }
+    /**
+     *Vytvorí instanci šachovnice. Šachovnic může být i více a na každé může probíhat jiná hra
+     * @param hrac1 - Bílý Hráč
+     * @param hrac0 - Černý Hráč
+     */
+    public Sachovnice(SachHrac hrac1, SachHrac hrac0){
+        hraci[1] = hrac1;
+        hraci[0] = hrac0;
     }
     
     /**
@@ -49,6 +63,25 @@ public class Sachovnice {
             pridejFiguru(new Pesec(new Point(i+1, 2), true, this));              //Rozestavení bílých pěšců
             pridejFiguru(new Pesec(new Point(i+1, 7), false, this));             //Rozestavení černých pěšců
         }
+        hraci[1].setNaTahu(true);
+    }
+    
+    /**
+     * @return Hráč, který je aktuálně na tahu.
+     */
+    public SachHrac getHracNaTahu(){
+        if(hraci[1].isNaTahu())
+            return hraci[1];
+        if(hraci[0].isNaTahu())
+            return hraci[0];
+        return null;
+    }
+    
+    /**
+     * @return vrací hráče na šachovnici
+     */
+    public SachHrac[] getHraci(){
+        return hraci;
     }
     
     /**
@@ -98,7 +131,7 @@ public class Sachovnice {
      */
     public boolean tahni(Figura figura, Point kam){
         boolean vyhozeni = false;
-        for(Point policko : figura.getMozneTahy()){                             //Overi, zdali je tah mozny
+        for(Point policko : figura.getMozneTahyOpt()){                             //Overi, zdali je tah mozny
             if(policko.equals(kam)){                                            //Tak je mozny
                 if(vyberFiguru(kam) != null){                                   //Pokud je na policku, kde se táhne, nepřátelská figura
                     vyhodFiguru(vyberFiguru(kam));
@@ -108,7 +141,9 @@ public class Sachovnice {
                 tahy.add(tah);
                 rozmisteni[figura.getPozice().x-1][figura.getPozice().y-1] = null;  //Nastaví původní políčko figury na null
                 rozmisteni[kam.x-1][kam.y-1] = figura;                              //Umístí Figuru na táhnuté políčko
-                figura.setPozice(kam);                                              //Nastaví nové souřadnice Figury
+                figura.setPozice(kam);                                             //Nastaví nové souřadnice Figury
+                prepniHraceNaTahu();
+                oznamFiguramTah();
                 return true;
             }
         }
@@ -131,9 +166,12 @@ public class Sachovnice {
         if(t.isVyhozena()){
             Figura fVyhoz = vratVyhozFiguru();                                  //Získá poslední vyhozenou figuru a smaze ji ze zásobníku
             rozmisteni[fVyhoz.getPozice().x -1][fVyhoz.getPozice().y -1] = fVyhoz;
-        }
-        t.tahZpet();                                                            //Informuje SachTahy o tahu z5
-    return false;
+        }else
+            rozmisteni[t.getKam().x-1][t.getKam().y-1] = null;
+        t.tahZpet();                                                             //Informuje SachTahy o tahu z5
+        prepniHraceNaTahu();
+        oznamFiguramTah();
+        return true;
     }
     
     /**
@@ -198,6 +236,8 @@ public class Sachovnice {
     /**
      *Umístí figuru na šachovnici na souřadnice zadané figury.
      * Metoda také může vymazat původní figuru na souřadnicích zadané figury.
+     * Pokud je Figura Král, tak je uloží do proměnných Král. Pokud se uživatel pokusí
+     * zadat 2 krále, metoda to nedovolí.
      * @param f Figura, která má být umístěna na šachovnici
      * @return true pokud byla figura úspěšně přidána, false v opačném případě
      */
@@ -248,6 +288,44 @@ public class Sachovnice {
      */
     public Figura[][] getRozmisteniFigur(){
         return rozmisteni;
+    }
+    
+    public void ulozHru() throws IOException{
+        int i;
+        String path = "GameData";
+        String file = "rozmisteni.txt";
+        database.uloz("Čistím Soubor", path, file, false);
+        database.vymazRadek(path + "/" + file, 0);
+        for(Figura ff[] : rozmisteni){
+            for(Figura f : ff){
+                if(f!=null)
+                    database.uloz(f.textReprezentaceFigury(), path, file, true);
+            }
+        }
+        file = "vyhozeneFigury.txt";
+        database.uloz("Čistím Soubor", path, file, false);
+        database.vymazRadek(path + "/" + file, 0);
+        for(Figura f : vyhozeneFigury){
+            database.uloz(f.textReprezentaceFigury(), path, file, true);
+        }
+        file = "hraci.txt";
+        database.uloz(hraci[0].textReprezentaceHrace(), path, file, false);
+        database.uloz(hraci[1].textReprezentaceHrace(), path, file, true);
+    }
+    public void nactiHru() throws IOException{
+        String[] nacHraci = database.nacti("GameData/hraci.txt");
+        String[] nacVyhozeneFigury = database.nacti("GameData/vyhozeneFigury.txt");
+        String[] nacRozmisteni = database.nacti("GameData/rozmisteni.txt");
+        String[] hrac0 = nacHraci[0].split(",");
+        String[] hrac1 = nacHraci[1].split(",");
+        hraci[0] = new SachHrac(hrac0[0], Sachovnice.intNaBool(Integer.parseInt(hrac0[1])), Sachovnice.intNaBool(Integer.parseInt(hrac0[1])));
+        hraci[1] = new SachHrac(hrac1[0], Sachovnice.intNaBool(Integer.parseInt(hrac1[1])), Sachovnice.intNaBool(Integer.parseInt(hrac1[1])));
+        for(String vyhozFigura : nacVyhozeneFigury){
+            vyhozeneFigury.add(Figura.vytvorKonkretniFigufu(vyhozFigura.split(","), this));
+        }
+        for(String nacRozmisteni1 : nacRozmisteni){
+            pridejFiguru(Figura.vytvorKonkretniFigufu(nacRozmisteni1.split(","), this));
+        }
     }
 
     /**
@@ -318,14 +396,42 @@ public class Sachovnice {
         return 0;
     }
     
-    /*
+    /**
+     * Vrací boolean na základě intu
+     * @param barva - číselné zasoupení barvy
+     * @return false pokud je číslo 0 a menší, true v opačném případě
+     */
+    public static boolean intNaBool(int barva){
+        return barva > 0;
+    }
+    
+    private void prepniHraceNaTahu(){
+        if(hraci[1].isNaTahu()){
+            hraci[1].setNaTahu(false);
+            hraci[0].setNaTahu(true);
+        }else if(hraci[0].isNaTahu()){
+            hraci[1].setNaTahu(true);
+            hraci[0].setNaTahu(false);
+        }
+    }
+    
+    private void oznamFiguramTah(){
+        for(Figura[] ff : rozmisteni){
+            for(Figura f: ff){
+                if(f != null)
+                    f.bylProvedenTah();
+            }
+        }
+    }
+    
+    /**
      * Vyhodí figuru z šachovnice tzn. zařadí jí mezi vyhozené a nastaví jí vyhozena true
      */
     private void vyhodFiguru(Figura figura){
         figura.setVyhozena(true);
         vyhozeneFigury.add(figura);
     }
-    /*
+    /**
      * Vrátí poslední vyhozenou figuru a nastaví jí vyhozena na false
      */
     private Figura vratVyhozFiguru(){

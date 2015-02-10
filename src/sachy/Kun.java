@@ -52,14 +52,14 @@ public class Kun extends Figura{
     @Override
     public Image getImage() {
         try {
-            if(barva)
+        if(barva)
                 return ImageIO.read(new File("src\\chessFigures\\whiteHorse.png"));
             else
                 return ImageIO.read(new File("src\\chessFigures\\blackHorse.png"));
         } catch (IOException ex) {
             System.err.println("Nenalezen obrázek koně, nemůže se vykreslit");
             System.err.println(ex.getMessage());
-        }
+    }
         return null;
     }
     

@@ -1,7 +1,10 @@
 
 package sachy;
 
+import java.io.IOException;
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *Třída umožňující jednoduchou práci a ovládání šachovnice
@@ -15,11 +18,11 @@ public class ChessKordinator {
     
     GraphicsInterface GUI;
     private Sachovnice sachovnice;
-    private SachHrac hrac0;
-    private SachHrac hrac1;
-    private SachHrac hracNaTahu;                                                    //Buď hráč 1 nebo hráč 2
-    private int kolo = 0;
-    private boolean hra = false;
+    
+    /**
+     * Slouží k alternativnímu toku dat na vsput a další zpracování dat
+     */
+    String vyrovnavaci = "";
     /**
      * Získá instanci šachového kordinátora, jimž lze jednoduše ovládat šachovou hru
      * @return ChessKordinator
@@ -34,50 +37,66 @@ public class ChessKordinator {
     /**
      * Začne novou šachovou hru se standartním rozestavením šachových figur
      */
-    public void hrej(){
-        hra = true;
-        sachovnice = new Sachovnice();
+    public void novaHra(){
+        sachovnice = new Sachovnice(initHrac("Zadejte jmeno bílého hráče:", true),initHrac("Zadejte jmeno černého hráče:", false));
         GUI = new GraphicsInterface(sachovnice);
         sachovnice.novaHra();
-        hrac1 = initHrac("Zadejte jmeno bílého hráče:", true);
-        hrac0 = initHrac("Zadejte jmeno černého hráče:", false);
-        hracNaTahu = hrac1;
         System.out.println("----Začíná nová hra----");
-        System.out.println(hrac1 + " vs. " + hrac0);
+        System.out.println(sachovnice.getHraci()[1] + " vs. " + sachovnice.getHraci()[1]);
         sachovnice.vykresliAsciiSachovnici();
+        GUI.prekresli();
         do{
             if(dalsiKolo())
                 break;
-            prepniHraceNaTahu();
-            if(dalsiKolo())
-                break;
-            prepniHraceNaTahu();
         }while(true);
         System.out.println("+++++++++++++++++++++++++++++++++");
         System.out.println("Mat");
-        System.out.println("Vyhral: " + hracNaTahu);
+        System.out.println("Vyhral: " + sachovnice.getHracNaTahu());
+    }
+    
+    /**
+     * Načte uloženou hru a pokračuje v ní.
+     */
+    public void hrejUlozenouHru(){
+        sachovnice = new Sachovnice();
+        try {
+            sachovnice.nactiHru();
+        } catch (IOException ex) {
+            System.err.println("Hra se nepodařila načíst, nebo není žádná uložená");
+            return;
+        }
+        GUI = new GraphicsInterface(sachovnice);
+        System.out.println(sachovnice.getHraci()[1] + " vs. " + sachovnice.getHraci()[1]);
+        sachovnice.vykresliAsciiSachovnici();
+        GUI.prekresli();
+        do{
+            if(dalsiKolo())
+                break;
+        }while(true);
+        System.out.println("+++++++++++++++++++++++++++++++++");
+        System.out.println("Mat");
+        System.out.println("Vyhral: " + sachovnice.getHracNaTahu());
     }
     
     /*Hraje hrac na tahu (nepřepne se hráč)
     Vraci true když je mat hráče který není na tahu*/
     private boolean dalsiKolo(){
         Figura f;
-        kolo ++;
-        System.out.printf("----------%d. kolo----------", kolo);
-        f = vyberFiguru(hracNaTahu.isBarva());
+        System.out.printf("----------%d. kolo----------", SachTah.getTah());
+        f = vyberFiguru(sachovnice.getHracNaTahu().isBarva());
         tahni(f);
         sachovnice.vykresliAsciiSachovnici();
         GUI.prekresli();
-        return sachovnice.getKral(!hracNaTahu.isBarva()).jeMat();
+        return sachovnice.getKral(sachovnice.getHracNaTahu().isBarva()).jeMat();
     }
     
     private Figura vyberFiguru(boolean barva){
         Figura f = null;
         boolean neuspeh = true;
         do{
-            System.out.printf("\n" + hracNaTahu + ": Vyberte figuru kterou budete táhnout:");
+            System.out.printf("\n" + sachovnice.getHracNaTahu()+ ": Vyberte figuru kterou budete táhnout:");
             try{
-                f = sachovnice.vyberFiguru(sc.next());
+                f = sachovnice.vyberFiguru(input());
             }catch(IllegalArgumentException e){
                 System.err.println(e.getMessage());
                 System.err.println("Zkus to znova!!!");
@@ -92,6 +111,7 @@ public class ChessKordinator {
                 System.out.printf("Na políčku nestojí žádná figura");
             }
         }while(neuspeh);
+        GUI.setVybranaFigura(f);
         return f;
     }
     /*tahne, nebo změni vybranou figuru*/
@@ -104,32 +124,27 @@ public class ChessKordinator {
                 do{
                     opetVybrana = false;
                     System.out.printf("\n" + f + " -> Kam chcete táhnout:");
-                    kam = sc.next();
+                    kam = input();
                     if(sachovnice.jeVolno(Sachovnice.souradniceNaPoint(kam)) == Sachovnice.barvaNaInt(f.barva)){
                         f = sachovnice.vyberFiguru(kam);
                         System.out.println("Vybral jste jinou figuru!");
                         System.out.println("Správná šachista když už se figury dotkne tak hraje");
                         System.out.println("Vybraná figura je nyní:" + f);
                         opetVybrana = true;
+                        GUI.setVybranaFigura(f);
                     }
                 }while(opetVybrana);
                 if(sachovnice.tahni(f, kam)){
                     neuspeh = false;
                 }else{
-                    System.out.println("Na políčko nelze táhnout!!!");
+                    System.out.printf("\nNa políčko nelze táhnout!!!");
                 }
             }catch(IllegalArgumentException e){
                 System.err.println(e.getMessage());
                 System.err.println("Zkus to znova!!!");
             }
         }while(neuspeh);
-    }
-
-    private void prepniHraceNaTahu(){
-        if(hracNaTahu.equals(hrac0))
-            hracNaTahu = hrac1;
-        else
-            hracNaTahu = hrac0;
+        GUI.setVybranaFigura(null);
     }
     
     private SachHrac initHrac(String zprava, boolean barva){
@@ -137,5 +152,33 @@ public class ChessKordinator {
         System.out.println("Vytváří se hráč: " + zprava);
         jmeno = sc.next();
         return new SachHrac(jmeno, barva);
+    }
+    
+    private String input(){
+        byte[] b = new byte[400];
+        
+        try {
+            int pp = System.in.available();
+            boolean ppp = vyrovnavaci.isEmpty();
+            while(pp<= 0 && ppp){
+                try {
+                    Thread.sleep(50);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(ChessKordinator.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                pp = System.in.available();
+                ppp = vyrovnavaci.isEmpty();
+            }
+            if(!vyrovnavaci.isEmpty()){
+                String s = vyrovnavaci;
+                vyrovnavaci = "";
+                System.out.printf(s);
+                return s;
+            }
+            return sc.next();
+        } catch (IOException ex) {
+            Logger.getLogger(ChessKordinator.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
     }
 }

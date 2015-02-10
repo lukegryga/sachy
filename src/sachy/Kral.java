@@ -123,14 +123,14 @@ public class Kral extends Figura{
     @Override
     public Image getImage() {
         try {
-            if(barva)
+        if(barva)
                 return ImageIO.read(new File("src\\chessFigures\\whiteKing.png"));
             else
                 return ImageIO.read(new File("src\\chessFigures\\blackKing.png"));
         } catch (IOException ex) {
             System.err.println("Nenalezen obrázek krále, nemůže se vykreslit");
             System.err.println(ex.getMessage());
-        }
+    }
         return null;
     }
     

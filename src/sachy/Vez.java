@@ -1,7 +1,6 @@
 
 package sachy;
 
-import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Point;
 import java.io.File;
@@ -37,11 +36,17 @@ public class Vez extends Figura {
             if(s.primySmer){
                 while(Sachovnice.existujeSouradnice(s.getPoleVeSmeru(pozice, vzdalenost))){                 //Pokud souradnice o jedna do pravaNahoru existuje
                     Point pPoint = s.getPoleVeSmeru(pozice, vzdalenost);
-                    if(sachovnice.jeVolno(pPoint) != iBarva){                     //Pokud na místě nestojí figura stejné barvy                                           
-                        if(!sachovnice.simTahOverKrale(this, pPoint)){                        
+                    if(sachovnice.jeVolno(pPoint) != iBarva){                   //Pokud na místě nestojí figura stejné barvy                                           
+                        if(vzdalenost == 1){                                    //Ověruje vazbu na krále pouze při táhnutí na vzálenost 1   
+                            if(!sachovnice.simTahOverKrale(this, pPoint)){                        
+                                mozneTahy.add(new Point(pPoint));
+                            }else{
+                                break;                                          //Když se figura pohne z místa a je ohrožen král, nemá již cenu dále ověřovat
+                            }
+                        }else{
                             mozneTahy.add(new Point(pPoint));
                         }
-                        if(sachovnice.jeVolno(pPoint) != -1){                     //Pokud na míste stojí figura cizí barvy (Není tam przdno)
+                        if(sachovnice.jeVolno(pPoint) != -1){               //Pokud na míste stojí figura cizí barvy (Není tam przdno)
                             break;
                         }
                     }else
@@ -63,14 +68,14 @@ public class Vez extends Figura {
     @Override
     public Image getImage() {
         try {
-            if(barva)
+        if(barva)
                 return ImageIO.read(new File("src\\chessFigures\\whiteRook.png"));
             else
                 return ImageIO.read(new File("src\\chessFigures\\blackRook.png"));
         } catch (IOException ex) {
             System.err.println("Nenalezen obrázek věže, nemůže se vykreslit");
             System.err.println(ex.getMessage());
-        }
+    }
         return null;
     }
 }

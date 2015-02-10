@@ -2,7 +2,6 @@
 
 package sachy;
 
-import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Point;
 import java.io.File;
@@ -39,7 +38,13 @@ public class Strelec extends Figura{
                 while(Sachovnice.existujeSouradnice(s.getPoleVeSmeru(pozice, vzdalenost))){                 //Pokud souradnice o jedna do pravaNahoru existuje
                     Point pPoint = s.getPoleVeSmeru(pozice, vzdalenost);
                     if(sachovnice.jeVolno(pPoint) != iBarva){                     //Pokud na místě nestojí figura stejné barvy                                         
-                        if(!sachovnice.simTahOverKrale(this, pPoint)){                        
+                        if(vzdalenost == 1){                                                        //Ověruje vazbu na krále pouze při táhnutí na vzálenost 1    
+                            if(!sachovnice.simTahOverKrale(this, pPoint)){                        
+                                mozneTahy.add(new Point(pPoint));
+                            }else{                                              //Když se figura pohne z místa a je ohrožen král, nemá již cenu dále ověřovat
+                                break;
+                            }
+                        }else{
                             mozneTahy.add(new Point(pPoint));
                         }
                         if(sachovnice.jeVolno(pPoint) != -1){                     //Pokud na míste stojí figura cizí barvy (Není tam przdno)
@@ -63,14 +68,14 @@ public class Strelec extends Figura{
     @Override
     public Image getImage() {
         try {
-            if(barva)
+        if(barva)
                 return ImageIO.read(new File("src\\chessFigures\\whiteBishop.png"));
             else
                 return ImageIO.read(new File("src\\chessFigures\\blackBishop.png"));
         } catch (IOException ex) {
             System.err.println("Nenalezen obrázek střelce, nemůže se vykreslit");
             System.err.println(ex.getMessage());
-        }
+    }
         return null;
     }
     

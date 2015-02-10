@@ -2,25 +2,30 @@
 package sachy;
 
 import java.awt.BasicStroke;
+import java.awt.Button;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import sun.misc.IOUtils;
 
 /**
  *Uživatelské rozhraní hry šachy
  * @author Lukáš Gryga
  */
-public class GraphicsInterface implements MouseListener {
+public class GraphicsInterface{
     
     private final ChessKordinator CHK = ChessKordinator.getChessKordinator();
     private final int PX=1;
@@ -28,16 +33,11 @@ public class GraphicsInterface implements MouseListener {
     
     private JFrame okno;
     private JPanel platno;
+    private Button bVratTah;
     private Sachovnice sachovnice;
     private int VELIKOSTPOLE = 50;
-    private Point vybranePolicko = new Point(9,9);
+    private Figura vybranaFigura = null;
     
-    public static void main(String[] args){
-        Sachovnice s = new Sachovnice();
-        s.novaHra();
-        GraphicsInterface GUI = new GraphicsInterface(s);
-        
-    }
     
     public GraphicsInterface(Sachovnice s){
         sachovnice = s;
@@ -51,28 +51,63 @@ public class GraphicsInterface implements MouseListener {
     public void setVelikostPole(int velikostPole){
         VELIKOSTPOLE = velikostPole;
     }
+    /**
+     *Znázorní se políčko, na kterém stojí daná figura + znázorní se její možné tahy
+     * @param f vybraná figura
+     */
+    public void setVybranaFigura(Figura f){
+        vybranaFigura = f;
+    }
     
+    /**
+     * Preskresli Sachovnici
+     */
     public void prekresli(){
         platno.repaint();
     }
     
     private void initFrame(){
+        bVratTah = new Button();
+        bVratTah.setSize(VELIKOSTPOLE*6, VELIKOSTPOLE);
+        bVratTah.setLocation(VELIKOSTPOLE, VELIKOSTPOLE*9);
+        bVratTah.setLabel("Vrať tah");
+        bVratTah.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                vratTahPressed(e);
+            }
+        }
+        );
         platno = new JPanel(){
             @Override
             public void paintComponent(Graphics g){
                 super.paintComponent(g);
                 vykresliSachovnici(g);
                 vykresliFigury(g);
+                vykresliMoznostiVybFigury(g);
             }
         };
         platno.setPreferredSize(new Dimension(200,200));
         okno = new JFrame();
         okno.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         okno.setVisible(true);
-        okno.setPreferredSize(new Dimension(500, 500));
+        okno.setResizable(false);
+        okno.setPreferredSize(new Dimension(407, 430));
         okno.setContentPane(platno);
+        okno.getContentPane().setLayout(new FlowLayout());
         okno.pack();
-        platno.addMouseListener(this);
+        okno.addWindowListener(new WindowAdapter(){
+            @Override
+            public void windowClosing(WindowEvent e){
+                oknoZavreno();
+            }
+        });
+        platno.addMouseListener(new MouseAdapter(){
+            @Override
+            public void mouseClicked(MouseEvent e){
+                mouseClicked1(e);
+            }
+        });
     }
     
     private void vykresliSachovnici(Graphics g){
@@ -106,33 +141,40 @@ public class GraphicsInterface implements MouseListener {
             }
         }
     }
+    
+    private void vykresliMoznostiVybFigury(Graphics g){
+        if(vybranaFigura != null){
+            Graphics2D g2 = (Graphics2D) g;
+            g2.setColor(Color.blue);
+            Figura f = vybranaFigura;
+            g2.drawRect((f.getPozice().x-1)*VELIKOSTPOLE+PX, (8-f.getPozice().y)*VELIKOSTPOLE+PY, VELIKOSTPOLE, VELIKOSTPOLE);
+            g2.setColor(new Color(0,255,0,150));
+            for(Point p : vybranaFigura.getMozneTahyOpt()){
+                g2.fillOval((p.x-1)*VELIKOSTPOLE+PX + VELIKOSTPOLE/3, (8-p.y)*VELIKOSTPOLE+PY + VELIKOSTPOLE/3, VELIKOSTPOLE/3, VELIKOSTPOLE/3);
+            }
+        }
+    }
 
-    @Override
-    public void mouseClicked(MouseEvent e) {
+    public void mouseClicked1(MouseEvent e) {
         Point souradnice = e.getPoint();
         int x = souradnice.x/VELIKOSTPOLE + PX;
         int y = souradnice.y/VELIKOSTPOLE + PY;
-        try{
-            try {
-                System.in.read(Sachovnice.pointNaSouradnice(new Point(x,8-y)).getBytes());
-            } catch (IOException ex) {
-                Logger.getLogger(GraphicsInterface.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }catch(IllegalArgumentException ex){}
-        
+        String gen=Sachovnice.pointNaSouradnice(new Point(x,9-y));
+        CHK.vyrovnavaci = gen;
+        platno.repaint();
+    }
+    
+    private void vratTahPressed(ActionEvent e){
+        sachovnice.vratTah();
+        platno.repaint();
     }
 
-    @Override
-    public void mousePressed(MouseEvent e) {    }
-
-    @Override
-    public void mouseReleased(MouseEvent e) {}
-
-    @Override
-    public void mouseEntered(MouseEvent e) {}
-
-    @Override
-    public void mouseExited(MouseEvent e) {}
     
-    
+    public void oknoZavreno(){
+        try {
+            sachovnice.ulozHru();
+        } catch (IOException ex) {
+            Logger.getLogger(GraphicsInterface.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    } 
 }

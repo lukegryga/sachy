@@ -1,7 +1,6 @@
 
 package sachy;
 
-import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Point;
 import java.util.ArrayList;
@@ -13,8 +12,8 @@ import java.util.ArrayList;
  * @author Lukáš Gryga
  */
 public abstract class Figura 
-{
-
+{   
+    
     /**
      *Sachovnice na které se daná figura nachází.
      */
@@ -45,6 +44,8 @@ public abstract class Figura
      *false = figura je na šachovnici ve hře, true = figura byla vahozena
      */
     protected boolean vyhozena = false;
+    
+    private boolean nedavnyTah = true;
     
     
     /**
@@ -102,6 +103,37 @@ public abstract class Figura
             return s.toUpperCase();
         return s.toLowerCase();
     }
+    /**
+     * Třeba zavolat na každé figuře po provedení tahu, či změně figur na šachovnici. Slouží k optimalizaci výkonu.
+     */
+    public void bylProvedenTah(){
+        nedavnyTah = true;
+    }
+    
+    /**
+     * Tato metoda správně funguje pouze při oznamování všem figurám na šachovnici, že byl proveden tah. 
+     * Oproti metodě getMozneTahy je výkonově optimalizována. 
+     * Vrací voláním metody getMozneTahy() pouze v případě, že byl po posledním volání této metody proveden tah, v opačném
+     * případě pouze vrací již uložné pole možných tahů.
+     * @return Pole možných tahů figury.
+     */
+    public ArrayList<Point> getMozneTahyOpt(){
+        if(nedavnyTah){
+            nedavnyTah = false;
+            return getMozneTahy();
+        }
+        return mozneTahy;
+    }
+    
+    /**
+     * Textová reprezentace figury.
+     * Vrací ve formátu: NázevFigury,BarvaNaInt,PoziceX,PoziceY
+     * @return např:kůň,1,5,5
+     */
+    public String textReprezentaceFigury(){
+        String[] s = this.toString().split(":");
+        return s[0] + "," + Sachovnice.barvaNaInt(barva) + "," + pozice.x + "," + pozice.y;
+    }
     
     /**
      *Ověří všechny možnosti tahu figury na standartní šachovnici 8X8. Dále bere v potaz
@@ -118,4 +150,29 @@ public abstract class Figura
      */
     public abstract Image getImage();
     
+    /**
+     * Vytvoří konkrétní figuru na základě textové rezprezentacr Figury
+     * @param s - Textová reprezentace figury. Je možno získat metodou textReprezentaceFigury()
+     * @param sachovnice - šachovnice, na kterou se má figura umístit
+     * @return konkrétní vytvořená figura
+     */
+    public static Figura vytvorKonkretniFigufu(String[] s, Sachovnice sachovnice){
+        boolean barva;
+        barva = 0 != Integer.parseInt(s[1]);
+        switch(s[0]){
+            case "Kůň" : 
+                return new Kun(new Point(Integer.parseInt(s[2]),Integer.parseInt(s[2])),barva,sachovnice);
+            case "Střelec" :
+                return new Strelec(new Point(Integer.parseInt(s[2]),Integer.parseInt(s[2])),barva,sachovnice);
+            case "Věž" :
+                return new Vez(new Point(Integer.parseInt(s[2]),Integer.parseInt(s[2])),barva,sachovnice);
+            case "Pěšec" :
+                return new Pesec(new Point(Integer.parseInt(s[2]),Integer.parseInt(s[2])),barva,sachovnice);
+            case "Dáma" :
+                return new Pesec(new Point(Integer.parseInt(s[2]),Integer.parseInt(s[2])),barva,sachovnice);
+            case "Král" :
+                return new Pesec(new Point(Integer.parseInt(s[2]),Integer.parseInt(s[2])),barva,sachovnice);   
+        }
+        return null;
+    }
 }
