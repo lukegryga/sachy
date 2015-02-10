@@ -318,8 +318,8 @@ public class Sachovnice {
         String[] nacRozmisteni = database.nacti("GameData/rozmisteni.txt");
         String[] hrac0 = nacHraci[0].split(",");
         String[] hrac1 = nacHraci[1].split(",");
-        hraci[0] = new SachHrac(hrac0[0], Sachovnice.intNaBool(Integer.parseInt(hrac0[1])), Sachovnice.intNaBool(Integer.parseInt(hrac0[1])));
-        hraci[1] = new SachHrac(hrac1[0], Sachovnice.intNaBool(Integer.parseInt(hrac1[1])), Sachovnice.intNaBool(Integer.parseInt(hrac1[1])));
+        hraci[0] = new SachHrac(hrac0[0], Sachovnice.intNaBool(Integer.parseInt(hrac0[1])), Sachovnice.intNaBool(Integer.parseInt(hrac0[2])));
+        hraci[1] = new SachHrac(hrac1[0], Sachovnice.intNaBool(Integer.parseInt(hrac1[1])), Sachovnice.intNaBool(Integer.parseInt(hrac1[2])));
         for(String vyhozFigura : nacVyhozeneFigury){
             vyhozeneFigury.add(Figura.vytvorKonkretniFigufu(vyhozFigura.split(","), this));
         }

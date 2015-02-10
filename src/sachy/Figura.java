@@ -161,17 +161,17 @@ public abstract class Figura
         barva = 0 != Integer.parseInt(s[1]);
         switch(s[0]){
             case "Kůň" : 
-                return new Kun(new Point(Integer.parseInt(s[2]),Integer.parseInt(s[2])),barva,sachovnice);
+                return new Kun(new Point(Integer.parseInt(s[2]),Integer.parseInt(s[3])),barva,sachovnice);
             case "Střelec" :
-                return new Strelec(new Point(Integer.parseInt(s[2]),Integer.parseInt(s[2])),barva,sachovnice);
+                return new Strelec(new Point(Integer.parseInt(s[2]),Integer.parseInt(s[3])),barva,sachovnice);
             case "Věž" :
-                return new Vez(new Point(Integer.parseInt(s[2]),Integer.parseInt(s[2])),barva,sachovnice);
+                return new Vez(new Point(Integer.parseInt(s[2]),Integer.parseInt(s[3])),barva,sachovnice);
             case "Pěšec" :
-                return new Pesec(new Point(Integer.parseInt(s[2]),Integer.parseInt(s[2])),barva,sachovnice);
+                return new Pesec(new Point(Integer.parseInt(s[2]),Integer.parseInt(s[3])),barva,sachovnice);
             case "Dáma" :
-                return new Pesec(new Point(Integer.parseInt(s[2]),Integer.parseInt(s[2])),barva,sachovnice);
+                return new Dama(new Point(Integer.parseInt(s[2]),Integer.parseInt(s[3])),barva,sachovnice);
             case "Král" :
-                return new Pesec(new Point(Integer.parseInt(s[2]),Integer.parseInt(s[2])),barva,sachovnice);   
+                return new Kral(new Point(Integer.parseInt(s[2]),Integer.parseInt(s[3])),barva,sachovnice);   
         }
         return null;
     }
