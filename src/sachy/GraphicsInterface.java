@@ -6,6 +6,7 @@ import java.awt.Button;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -30,6 +31,7 @@ public class GraphicsInterface{
     private final ChessKordinator CHK = ChessKordinator.getChessKordinator();
     private final int PX=1;
     private final int PY=1;
+    private final boolean serverHra;
     
     private JFrame okno;
     private JPanel platno;
@@ -37,10 +39,16 @@ public class GraphicsInterface{
     private Sachovnice sachovnice;
     private int VELIKOSTPOLE = 50;
     private Figura vybranaFigura = null;
+    private boolean jeMat = false;
     
-    
-    public GraphicsInterface(Sachovnice s){
+    /**
+     * Konsruktou vytvoří třídu reprezentující Grafické Rozhraní šachů
+     * @param s - šachovnice, která se bude překreslovat
+     * @param serverHra true, pokud se jedná o server hru, false v opačném případě
+     */
+    public GraphicsInterface(Sachovnice s, boolean serverHra){
         sachovnice = s;
+        this.serverHra = serverHra;
         initFrame();
     };
     
@@ -85,6 +93,7 @@ public class GraphicsInterface{
                 vykresliSachovnici(g);
                 vykresliFigury(g);
                 vykresliMoznostiVybFigury(g);
+                vykresliMat(g);
             }
         };
         platno.setPreferredSize(new Dimension(200,200));
@@ -108,6 +117,12 @@ public class GraphicsInterface{
                 mouseClicked1(e);
             }
         });
+    }
+    /**
+     * Řekne GUI, že již má vykreslit MAT (Použít metodu: vykresliMat())
+     */
+    public void setMat(){
+        jeMat = true;
     }
     
     private void vykresliSachovnici(Graphics g){
@@ -155,12 +170,29 @@ public class GraphicsInterface{
         }
     }
 
+    
+    public void vykresliMat(Graphics g){
+        if(jeMat){
+            Graphics2D g2 = (Graphics2D) g;
+            Font font = new Font("Segoe UI", 1, 70);
+            g2.setFont(font);
+            g2.setColor(Color.RED);
+            g2.drawString("MAT", VELIKOSTPOLE*4-90, VELIKOSTPOLE*4);
+        }
+    }
+    /**
+     * Překreslí plátno a pošle do proměnné vyrovnávací textovou reprezentaci kliknutého políčka
+     * V případě servrové hry pošle reprezentaci i po síti protihráči
+     * @param e 
+     */
     public void mouseClicked1(MouseEvent e) {
         Point souradnice = e.getPoint();
         int x = souradnice.x/VELIKOSTPOLE + PX;
         int y = souradnice.y/VELIKOSTPOLE + PY;
         String gen=Sachovnice.pointNaSouradnice(new Point(x,9-y));
         CHK.vyrovnavaci = gen;
+        if(serverHra)
+            CHK.posli(gen);
         platno.repaint();
     }
     
@@ -169,7 +201,9 @@ public class GraphicsInterface{
         platno.repaint();
     }
 
-    
+    /**
+     * Zavře okno a uloží hru do souboru
+     */
     public void oknoZavreno(){
         try {
             sachovnice.ulozHru();

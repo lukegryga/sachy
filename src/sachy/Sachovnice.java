@@ -39,8 +39,8 @@ public class Sachovnice {
      * @param hrac0 - Černý Hráč
      */
     public Sachovnice(SachHrac hrac1, SachHrac hrac0){
-        hraci[1] = hrac1;
-        hraci[0] = hrac0;
+            hraci[1] = hrac1;
+            hraci[0] = hrac0;
     }
     
     /**
@@ -63,7 +63,10 @@ public class Sachovnice {
             pridejFiguru(new Pesec(new Point(i+1, 2), true, this));              //Rozestavení bílých pěšců
             pridejFiguru(new Pesec(new Point(i+1, 7), false, this));             //Rozestavení černých pěšců
         }
-        hraci[1].setNaTahu(true);
+        if(hraci[1].isBarva())
+            hraci[1].setNaTahu(true);
+        else
+            hraci[0].setNaTahu(true);
     }
     
     /**
@@ -124,7 +127,7 @@ public class Sachovnice {
     /**
      *Provede Šachový tah. Přesune figuru na nové souřadnice a ze starých souřadnic figuru
      * smaže. Pokud je nepřátelská figura vyhozena tak jí uloží do vyhozených figur pro
-     * případné vrácení tahu
+     * případné vrácení tahu. Po úspěšném provedení tahu přepne hráče na tahu
      * @param figura figura, kterou se má táhnout
      * @param kam kam se má figurou táhnout
      * @return true pokud tah proběhl úspěšne, false v opačném případě
@@ -289,7 +292,11 @@ public class Sachovnice {
     public Figura[][] getRozmisteniFigur(){
         return rozmisteni;
     }
-    
+    /**
+     * Uloží hru do souborů ve složce GameData, v případě že složka a soubory neexistují,
+     * pak je vytvoří. Při uložení hry se přepíše ta stará.
+     * @throws IOException 
+     */
     public void ulozHru() throws IOException{
         int i;
         String path = "GameData";
@@ -312,6 +319,11 @@ public class Sachovnice {
         database.uloz(hraci[0].textReprezentaceHrace(), path, file, false);
         database.uloz(hraci[1].textReprezentaceHrace(), path, file, true);
     }
+    
+    /**
+     * Načte Hru ze souborů ve složce GameData. Pokud není žádná hra uložená, nefunguje to. :D
+     * @throws IOException 
+     */
     public void nactiHru() throws IOException{
         String[] nacHraci = database.nacti("GameData/hraci.txt");
         String[] nacVyhozeneFigury = database.nacti("GameData/vyhozeneFigury.txt");
