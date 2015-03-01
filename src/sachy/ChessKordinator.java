@@ -202,7 +202,7 @@ public class ChessKordinator {
                     if(sachovnice.jeVolno(Sachovnice.souradniceNaPoint(kam)) == Sachovnice.barvaNaInt(f.barva)){
                         f = sachovnice.vyberFiguru(kam);
                         System.out.println("Vybral jste jinou figuru!");
-                        System.out.println("Správný šachista když už se figury dotkne tak hraje");
+                        System.out.println("Správný šachista když už se figury dotkne, tak hraje");
                         System.out.println("Vybraná figura je nyní:" + f);
                         opetVybrana = true;
                         GUI.setVybranaFigura(f);
