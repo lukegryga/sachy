@@ -1,10 +1,9 @@
 
 package sachy;
 
-import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Point;
-import java.io.File;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
 import javax.imageio.ImageIO;
@@ -16,7 +15,9 @@ import javax.imageio.ImageIO;
  * @author Lukáš Grgyga
  */
 public class Pesec extends Figura{
-
+    
+    private static BufferedImage whitePawn = null;
+    private static BufferedImage blackPawn = null;
 
     /**
      *Vytvoří šachového pěšce dané barvy na zadaných souřadnicích. Pozor, figura se nepřidá
@@ -27,6 +28,15 @@ public class Pesec extends Figura{
      */
     public Pesec(Point pozice, boolean barva, Sachovnice sachovnice) {
         super(pozice, barva, 1, sachovnice);
+        if(whitePawn == null || blackPawn == null){
+            try {
+                whitePawn = ImageIO.read(this.getClass().getResource("/chessFigures/whitePawn.png"));
+                blackPawn = ImageIO.read(this.getClass().getResource("/chessFigures/blackPawn.png"));
+            } catch (IOException ex) {
+                System.err.println("Nenalezen obrázek pěšce, nemůže se vykreslit");
+                System.err.println(ex.getMessage());
+            }
+        }
     }
     
     @Override
@@ -89,15 +99,8 @@ public class Pesec extends Figura{
     
     @Override
     public Image getImage() {
-        try {
         if(barva)
-                return ImageIO.read(new File("src\\chessFigures\\whitePawn.png"));
-            else
-                return ImageIO.read(new File("src\\chessFigures\\blackPawn.png"));
-        } catch (IOException ex) {
-            System.err.println("Nenalezen obrázek pěšce, nemůže se vykreslit");
-            System.err.println(ex.getMessage());
-    }
-        return null;
+            return whitePawn;
+        return blackPawn;
     }
 }

@@ -88,6 +88,17 @@ public class Sachovnice {
     }
     
     /**
+     * Vrátí hráče na základě barvy
+     * @param barva barva vráceného hráče
+     * @return Šachového hráče na zadané šachovnici
+     */
+    public SachHrac getHrac(boolean barva){
+        if(hraci[1].isBarva() == barva)
+            return hraci[1];
+        return hraci[0];
+    }
+    
+    /**
      *Vrátí figuru na zadaných souřadnicích. POkud jsou souřadnice špatně zadny vrací null
      * @param souradnice Šachové souřadnice, ze kterých získáváme figuru
      * @return figuru ze souřadnic, v případě nenalezeí figury vrací null

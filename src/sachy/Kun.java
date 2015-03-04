@@ -2,10 +2,9 @@
 
 package sachy;
 
-import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Point;
-import java.io.File;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
 import javax.imageio.ImageIO;
@@ -16,6 +15,9 @@ import javax.imageio.ImageIO;
  * @author Lukáš Grgyga
  */
 public class Kun extends Figura{
+    
+    private static BufferedImage whiteHorse = null;
+    private static BufferedImage blackHorse = null;
 
 
     /**
@@ -27,6 +29,15 @@ public class Kun extends Figura{
      */
     public Kun(Point pozice, boolean barva, Sachovnice sachovnice) {
         super(pozice, barva, 3, sachovnice);
+        if(whiteHorse == null || blackHorse == null){
+            try {
+                whiteHorse = ImageIO.read(this.getClass().getResource("/chessFigures/whiteHorse.png"));
+                blackHorse = ImageIO.read(this.getClass().getResource("/chessFigures/blackHorse.png"));
+            } catch (IOException ex) {
+                System.err.println("Nenalezen obrázek koně, nemůže se vykreslit");
+                System.err.println(ex.getMessage());
+            }
+        }
     }
 
     @Override
@@ -51,16 +62,10 @@ public class Kun extends Figura{
     
     @Override
     public Image getImage() {
-        try {
         if(barva)
-                return ImageIO.read(new File("src\\chessFigures\\whiteHorse.png"));
-            else
-                return ImageIO.read(new File("src\\chessFigures\\blackHorse.png"));
-        } catch (IOException ex) {
-            System.err.println("Nenalezen obrázek koně, nemůže se vykreslit");
-            System.err.println(ex.getMessage());
-    }
-        return null;
+            return whiteHorse;
+        return blackHorse;
+
     }
     
 }

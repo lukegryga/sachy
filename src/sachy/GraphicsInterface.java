@@ -10,8 +10,6 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
@@ -32,6 +30,7 @@ public class GraphicsInterface{
     private final int PX=1;
     private final int PY=1;
     private final boolean serverHra;
+    private final String titulek;
     
     private JFrame okno;
     private JPanel platno;
@@ -45,10 +44,12 @@ public class GraphicsInterface{
      * Konsruktou vytvoří třídu reprezentující Grafické Rozhraní šachů
      * @param s - šachovnice, která se bude překreslovat
      * @param serverHra true, pokud se jedná o server hru, false v opačném případě
+     * @param titulek text, který bude zobrazen v rámu okna
      */
-    public GraphicsInterface(Sachovnice s, boolean serverHra){
+    public GraphicsInterface(Sachovnice s, boolean serverHra, String titulek){
         sachovnice = s;
         this.serverHra = serverHra;
+        this.titulek = titulek;
         initFrame();
     };
     
@@ -75,17 +76,6 @@ public class GraphicsInterface{
     }
     
     private void initFrame(){
-        bVratTah = new Button();
-        bVratTah.setSize(VELIKOSTPOLE*6, VELIKOSTPOLE);
-        bVratTah.setLocation(VELIKOSTPOLE, VELIKOSTPOLE*9);
-        bVratTah.setLabel("Vrať tah");
-        bVratTah.addActionListener(new ActionListener(){
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                vratTahPressed(e);
-            }
-        }
-        );
         platno = new JPanel(){
             @Override
             public void paintComponent(Graphics g){
@@ -93,7 +83,9 @@ public class GraphicsInterface{
                 vykresliSachovnici(g);
                 vykresliFigury(g);
                 vykresliMoznostiVybFigury(g);
+                if(jeMat){
                 vykresliMat(g);
+                }
             }
         };
         platno.setPreferredSize(new Dimension(200,200));
@@ -105,6 +97,7 @@ public class GraphicsInterface{
         okno.setContentPane(platno);
         okno.getContentPane().setLayout(new FlowLayout());
         okno.pack();
+        okno.setTitle(titulek);
         okno.addWindowListener(new WindowAdapter(){
             @Override
             public void windowClosing(WindowEvent e){
@@ -170,15 +163,16 @@ public class GraphicsInterface{
         }
     }
 
-    
+    /**
+     * Vykreslí přes šachovnici velkým červeně mat
+     * @param g 
+     */
     public void vykresliMat(Graphics g){
-        if(jeMat){
             Graphics2D g2 = (Graphics2D) g;
             Font font = new Font("Segoe UI", 1, 70);
             g2.setFont(font);
             g2.setColor(Color.RED);
             g2.drawString("MAT", VELIKOSTPOLE*4-90, VELIKOSTPOLE*4);
-        }
     }
     /**
      * Překreslí plátno a pošle do proměnné vyrovnávací textovou reprezentaci kliknutého políčka
@@ -191,13 +185,13 @@ public class GraphicsInterface{
         int y = souradnice.y/VELIKOSTPOLE + PY;
         String gen=Sachovnice.pointNaSouradnice(new Point(x,9-y));
         CHK.vyrovnavaci = gen;
+        try {
+            Thread.sleep(CHK.TAKTOVANI + 10);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(GraphicsInterface.class.getName()).log(Level.SEVERE, null, ex);
+        }
         if(serverHra)
             CHK.posli(gen);
-        platno.repaint();
-    }
-    
-    private void vratTahPressed(ActionEvent e){
-        sachovnice.vratTah();
         platno.repaint();
     }
 

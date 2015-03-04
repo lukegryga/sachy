@@ -3,6 +3,7 @@ package sachy;
 
 import java.awt.Image;
 import java.awt.Point;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -14,6 +15,11 @@ import javax.imageio.ImageIO;
  * @author Lukáš Grgyga
  */
 public class Vez extends Figura {
+    
+    private static BufferedImage whiteRook = null;
+    private static BufferedImage blackRook = null;
+    
+    
 
     /**
      *Vytvoří šachovou věž dané barvy na zadaných souřadnicích. Pozor, figura se nepřidá
@@ -24,6 +30,15 @@ public class Vez extends Figura {
      */
     public Vez(Point pozice, boolean barva, Sachovnice sachovnice) {
         super(pozice, barva, 5, sachovnice);
+        if(whiteRook == null || blackRook == null){
+            try {
+                whiteRook = ImageIO.read(this.getClass().getResource("/chessFigures/whiteRook.png"));
+                blackRook = ImageIO.read(this.getClass().getResource("/chessFigures/blackRook.png"));
+            } catch (IOException ex) {
+                System.err.println("Nenalezen obrázek věže, nemůže se vykreslit");
+                System.err.println(ex.getMessage());
+            }
+        }
     }
 
     
@@ -37,7 +52,7 @@ public class Vez extends Figura {
                 while(Sachovnice.existujeSouradnice(s.getPoleVeSmeru(pozice, vzdalenost))){                 //Pokud souradnice o jedna do pravaNahoru existuje
                     Point pPoint = s.getPoleVeSmeru(pozice, vzdalenost);
                     if(sachovnice.jeVolno(pPoint) != iBarva){                   //Pokud na místě nestojí figura stejné barvy                                           
-                        if(vzdalenost == 1){                                    //Ověruje vazbu na krále pouze při táhnutí na vzálenost 1   
+                        if(vzdalenost == 1 || sachovnice.getKral(barva).jeKralOhrozen()){      //Ověruje vazbu na krále pouze při táhnutí na vzálenost 1 nebo když je ohrožen vlastní král
                             if(!sachovnice.simTahOverKrale(this, pPoint)){                        
                                 mozneTahy.add(new Point(pPoint));
                             }else{
@@ -67,15 +82,8 @@ public class Vez extends Figura {
     
     @Override
     public Image getImage() {
-        try {
         if(barva)
-                return ImageIO.read(new File("src\\chessFigures\\whiteRook.png"));
-            else
-                return ImageIO.read(new File("src\\chessFigures\\blackRook.png"));
-        } catch (IOException ex) {
-            System.err.println("Nenalezen obrázek věže, nemůže se vykreslit");
-            System.err.println(ex.getMessage());
-    }
-        return null;
+            return whiteRook;
+        return blackRook;
     }
 }

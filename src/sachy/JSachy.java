@@ -47,7 +47,7 @@ public class JSachy extends javax.swing.JFrame {
         });
 
         jLabel1.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
-        jLabel1.setText("Šachy v:3.1.0");
+        jLabel1.setText("Šachy v:3.2.0");
 
         buttNactiHru.setText("Načti Hru");
         buttNactiHru.addActionListener(new java.awt.event.ActionListener() {
@@ -115,6 +115,7 @@ public class JSachy extends javax.swing.JFrame {
         };
         t.start();
         this.setVisible(false);
+        this.dispose();
     }//GEN-LAST:event_buttNovaHraActionPerformed
 
     private void buttNactiHruActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttNactiHruActionPerformed
@@ -126,6 +127,7 @@ public class JSachy extends javax.swing.JFrame {
         };
         t.start();
         this.setVisible(false);
+        this.dispose();
     }//GEN-LAST:event_buttNactiHruActionPerformed
 
     private void buttZalozSHruActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttZalozSHruActionPerformed
@@ -137,6 +139,7 @@ public class JSachy extends javax.swing.JFrame {
         };
         t.start();
         this.setVisible(false);
+        this.dispose();
     }//GEN-LAST:event_buttZalozSHruActionPerformed
 
     private void buttPripojActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttPripojActionPerformed
@@ -148,6 +151,7 @@ public class JSachy extends javax.swing.JFrame {
         };
         t.start();
         this.setVisible(false);
+        this.dispose();
     }//GEN-LAST:event_buttPripojActionPerformed
 
     /**

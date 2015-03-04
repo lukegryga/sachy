@@ -4,6 +4,7 @@ package sachy;
 
 import java.awt.Image;
 import java.awt.Point;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -15,7 +16,9 @@ import javax.imageio.ImageIO;
  * @author Lukáš Grgyga
  */
 public class Strelec extends Figura{
-
+    
+    private static BufferedImage whiteBishop = null;
+    private static BufferedImage blackBishop = null;
     /**
      *Vytvoří šachov´ho střelce dané barvy na zadaných souřadnicích. Pozor, figura se nepřidá
      * na šachovnici (<code>Sachovnice</code>). Přidat na šachovnici lze metodou šachovnice: <code>pridejFiguru(Figura)</code>
@@ -25,6 +28,15 @@ public class Strelec extends Figura{
      */
     public Strelec(Point pozice, boolean barva, Sachovnice sachovnice) {
         super(pozice, barva, 3, sachovnice);
+        if(whiteBishop == null || blackBishop == null){
+            try {
+                whiteBishop = ImageIO.read(this.getClass().getResource("/chessFigures/whiteBishop.png"));
+                blackBishop = ImageIO.read(this.getClass().getResource("/chessFigures/blackBishop.png"));
+            } catch (IOException ex) {
+                System.err.println("Nenalezen obrázek střelce, nemůže se vykreslit");
+                System.err.println(ex.getMessage());
+            }
+        }
     }
 
 
@@ -38,7 +50,7 @@ public class Strelec extends Figura{
                 while(Sachovnice.existujeSouradnice(s.getPoleVeSmeru(pozice, vzdalenost))){                 //Pokud souradnice o jedna do pravaNahoru existuje
                     Point pPoint = s.getPoleVeSmeru(pozice, vzdalenost);
                     if(sachovnice.jeVolno(pPoint) != iBarva){                     //Pokud na místě nestojí figura stejné barvy                                         
-                        if(vzdalenost == 1){                                                        //Ověruje vazbu na krále pouze při táhnutí na vzálenost 1    
+                        if(vzdalenost == 1 || sachovnice.getKral(barva).jeKralOhrozen()){  //Ověruje vazbu na krále pouze při táhnutí na vzálenost 1, nebo když je ohrožen vlastní král  
                             if(!sachovnice.simTahOverKrale(this, pPoint)){                        
                                 mozneTahy.add(new Point(pPoint));
                             }else{                                              //Když se figura pohne z místa a je ohrožen král, nemá již cenu dále ověřovat
@@ -67,16 +79,9 @@ public class Strelec extends Figura{
     
     @Override
     public Image getImage() {
-        try {
         if(barva)
-                return ImageIO.read(new File("src\\chessFigures\\whiteBishop.png"));
-            else
-                return ImageIO.read(new File("src\\chessFigures\\blackBishop.png"));
-        } catch (IOException ex) {
-            System.err.println("Nenalezen obrázek střelce, nemůže se vykreslit");
-            System.err.println(ex.getMessage());
-    }
-        return null;
+            return whiteBishop;
+        return blackBishop;
     }
     
 }

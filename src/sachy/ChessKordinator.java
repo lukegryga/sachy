@@ -5,6 +5,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Scanner;
@@ -20,6 +22,11 @@ public class ChessKordinator {
     private static final int PORT = 10097;
     
     private static ChessKordinator jedinacek;
+    
+    /**
+     * Taktovací frekvence
+     */
+    public final int TAKTOVANI = 50;
     
     private Socket sProtihrac;
     private PrintStream out;
@@ -50,11 +57,12 @@ public class ChessKordinator {
      * Začne novou šachovou hru se standartním rozestavením šachových figur
      */
     public void novaHra(){
-        sachovnice = new Sachovnice(initHrac("Zadejte jmeno bílého hráče:", true),initHrac("Zadejte jmeno černého hráče:", false));
-        GUI = new GraphicsInterface(sachovnice, false);
+        //sachovnice = new Sachovnice(initHrac("Zadejte jmeno bílého hráče:", true),initHrac("Zadejte jmeno černého hráče:", false));
+        sachovnice = GraphicsIO.initHraci();
+        GUI = new GraphicsInterface(sachovnice, false, sachovnice.getHraci()[1] + " vs. " + sachovnice.getHraci()[0]);
         sachovnice.novaHra();
         System.out.println("----Začíná nová hra----");
-        System.out.println(sachovnice.getHraci()[1] + " vs. " + sachovnice.getHraci()[1]);
+        System.out.println(sachovnice.getHraci()[1] + " vs. " + sachovnice.getHraci()[0]);
         sachovnice.vykresliAsciiSachovnici();
         GUI.prekresli();
         do{
@@ -66,6 +74,7 @@ public class ChessKordinator {
         System.out.println("+++++++++++++++++++++++++++++++++");
         System.out.println("Mat");
         System.out.println("Vyhral: " + sachovnice.getHracNaTahu());
+        GraphicsIO.zobrazHlasku("Vyhral: " + sachovnice.getHracNaTahu());
     }
     
     /**
@@ -79,8 +88,8 @@ public class ChessKordinator {
             System.err.println("Hra se nepodařila načíst, nebo není žádná uložená");
             return;
         }
-        GUI = new GraphicsInterface(sachovnice, false);
-        System.out.println(sachovnice.getHraci()[1] + " vs. " + sachovnice.getHraci()[1]);
+        GUI = new GraphicsInterface(sachovnice, false, sachovnice.getHraci()[1] + " vs. " + sachovnice.getHraci()[0]);
+        System.out.println(sachovnice.getHraci()[1] + " vs. " + sachovnice.getHraci()[0]);
         sachovnice.vykresliAsciiSachovnici();
         GUI.prekresli();
         if(!sachovnice.getKral(true).jeMat() && !sachovnice.getKral(false).jeMat()){
@@ -94,20 +103,27 @@ public class ChessKordinator {
         System.out.println("+++++++++++++++++++++++++++++++++");
         System.out.println("Mat");
         System.out.println("Vyhral: " + sachovnice.getHracNaTahu());
+        GraphicsIO.zobrazHlasku("Vyhral: " + sachovnice.getHracNaTahu());
     }
     /**
-     * Vytvoří novou servrovou hru, nebo se k ní připojí.
+     * Vytvoří novou servrovou hru, nebo se k ní připojí.Když je vytvořená nová hra (vytvor
+     * hru je true), pak hráč bude mít bílé, v opačném případě černé figury
      * @param vytvorSHru true - založí novou servrovou hru, false - připojí se k jiné hře
      */
      public void serverHra(boolean vytvorSHru){
         if(vytvorSHru)
             najdiHrace();
         else
-            pripojKServru();
+            for(int i=0;i<3;i++){
+            if(pripojKServru())
+                break;
+            if(i==2)
+                return;
+            }
         barvaHrace = vytvorSHru;
         sachovnice = initSHraci(vytvorSHru);
         sachovnice.novaHra();
-        GUI = new GraphicsInterface(sachovnice, true);
+        GUI = new GraphicsInterface(sachovnice, true, sachovnice.getHrac(vytvorSHru).toString());
         sachovnice.vykresliAsciiSachovnici();
         do{
             if(dalsiSKolo())
@@ -118,6 +134,7 @@ public class ChessKordinator {
         System.out.println("+++++++++++++++++++++++++++++++++");
         System.out.println("Mat");
         System.out.println("Vyhral: " + sachovnice.getHracNaTahu());
+        GraphicsIO.zobrazHlasku("Vyhral: " + sachovnice.getHracNaTahu());
     }
      
      private boolean dalsiSKolo(){
@@ -223,11 +240,14 @@ public class ChessKordinator {
     
     private Sachovnice initSHraci(boolean server){
         System.out.println("Zadejte jméno vašeho hráče:");
-        String jmeno = sc.nextLine();
+        //String jmeno = sc.nextLine();
+        String jmeno = GraphicsIO.initHrac();
         posli(jmeno);
         SachHrac hrac1 = new SachHrac(jmeno, server);
         System.out.println("Čekání na protihráče....");
+        GraphicsIO.zobrazHlasku("Čekání na protihráče....");
         SachHrac hrac2 = new SachHrac(prijmi(), !server);
+        GraphicsIO.skryjHlasku();
         System.out.println(hrac1 + "(Vy) vs. " + hrac2 + "(Soupeř)");
         return new Sachovnice(hrac1, hrac2);
     }
@@ -247,7 +267,7 @@ public class ChessKordinator {
             boolean ppp = vyrovnavaci.isEmpty();
             while(pp<= 0 && ppp){
                 try {
-                    Thread.sleep(50);
+                    Thread.sleep(TAKTOVANI);
                 } catch (InterruptedException ex) {
                     Logger.getLogger(ChessKordinator.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -266,16 +286,36 @@ public class ChessKordinator {
         }
         return null;
     }
-    private void pripojKServru(){
+    private boolean pripojKServru(){
         System.out.println("IP Adresa:");
         try {
-            sProtihrac = new Socket(sc.nextLine(), PORT);
-            out = new PrintStream(sProtihrac.getOutputStream());
-            in = new BufferedReader(new InputStreamReader(sProtihrac.getInputStream()));
+            String myIp = InetAddress.getLocalHost().getHostAddress();
+            String zacatekMyIp = myIp.substring(0, myIp.lastIndexOf(".")+1);
+            GraphicsIO.zobrazHlasku("Hledám hráče na lan...");
+            for(int i=0;i<256;i++){
+                try{
+                    System.out.println(zacatekMyIp + Integer.toString(i));
+                    sProtihrac = new Socket();
+                    sProtihrac.connect(new InetSocketAddress(zacatekMyIp + Integer.toString(i), PORT), 150);
+                    break;
+                }catch(IOException e){
+                    if(i==255){
+                        GraphicsIO.zobrazHlasku("Žádná hra nenalezena. Zkuste to později");
+                        return false;
+                    }
+                }
+            }
+            GraphicsIO.skryjHlasku();
+            //sProtihrac = new Socket(sc.nextLine(), PORT);
+            //sProtihrac = new Socket(GraphicsIO.IPAdresa(), PORT);
+            //out = new PrintStream(sProtihrac.getOutputStream());
+            //in = new BufferedReader(new InputStreamReader(sProtihrac.getInputStream()));
         } catch (IOException ex) {
            System.err.println("Špatá IP Adesa, zkuste to znovu.");
+           return false;
         }
         System.out.println("Připojeno.");
+        return true;
     }
 
     private void najdiHrace() {
@@ -287,6 +327,7 @@ public class ChessKordinator {
         }
         try{
             System.out.println("Čekám na připojení hráče....");
+            GraphicsIO.zobrazHlasku("Čekám na připojení hráče....");
             sProtihrac = server.accept();
             out = new PrintStream(sProtihrac.getOutputStream());
             in = new BufferedReader(new InputStreamReader(sProtihrac.getInputStream()));
@@ -294,6 +335,7 @@ public class ChessKordinator {
        }catch(Exception e){
            System.out.println(e.getMessage());
        }
+        GraphicsIO.skryjHlasku();
     }
     /**
      * Pošle data do počítače protihráče

@@ -2,13 +2,14 @@
 
 package sachy;
 
-import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Point;
-import java.io.File;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
 import javax.imageio.ImageIO;
+
+
 
 /**
  *Třída reprezenující šachového krále, klíčovou figuru celé šachové hry. Na šachovnice může
@@ -16,6 +17,9 @@ import javax.imageio.ImageIO;
  * pohybovat o 1 políčko kterýmkoliv směrem, ale nesmí to pole být ohrožené.
  */
 public class Kral extends Figura{
+    
+    private static BufferedImage whiteKing = null;
+    private static BufferedImage blackKing = null;
 
     /**
      *Vytvoří šachového krále dané barvy na zadaných souřadnicích. Pozor, figura se nepřidá
@@ -26,6 +30,15 @@ public class Kral extends Figura{
      */
     public Kral(Point pozice, boolean barva,Sachovnice sachovnice) {
         super(pozice, barva, 0, sachovnice);
+        if(whiteKing == null || blackKing == null){
+            try {
+                whiteKing = ImageIO.read(this.getClass().getResource("/chessFigures/whiteKing.png"));
+                blackKing = ImageIO.read(this.getClass().getResource("/chessFigures/blackKing.png"));
+            } catch (IOException ex) {
+                System.err.println("Nenalezen obrázek krále, nemůže se vykreslit");
+                System.err.println(ex.getMessage());
+            }
+        }
     }
     
     /**
@@ -109,8 +122,19 @@ public class Kral extends Figura{
     public boolean jeMat(){
         getMozneTahy();
         if(mozneTahy.isEmpty()){
-            if(jeKralOhrozen())
+            if(jeKralOhrozen()){
+                for(Figura ff[] : sachovnice.getRozmisteniFigur()){
+                    for(Figura f: ff){
+                        if(f != null){
+                            if(f.barva == this.barva){
+                                if(!f.getMozneTahyOpt().isEmpty())
+                                    return false;
+                            }
+                        }
+                    }
+                }
                 return true;
+            }
         }
         return false;
     }
@@ -122,16 +146,9 @@ public class Kral extends Figura{
     
     @Override
     public Image getImage() {
-        try {
         if(barva)
-                return ImageIO.read(new File("src\\chessFigures\\whiteKing.png"));
-            else
-                return ImageIO.read(new File("src\\chessFigures\\blackKing.png"));
-        } catch (IOException ex) {
-            System.err.println("Nenalezen obrázek krále, nemůže se vykreslit");
-            System.err.println(ex.getMessage());
-    }
-        return null;
+            return whiteKing;
+        return blackKing;
     }
     
 }
