@@ -34,6 +34,7 @@ public class GraphicsIO {
             hlaskoveOkno.setPreferredSize(new Dimension(400,100));
             hlaskoveOkno.setLocationRelativeTo(null);
             hlaskoveOkno.add(hlaska);
+            hlaskoveOkno.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         }
         hlaska.setText(message);
         hlaskoveOkno.setVisible(true);
@@ -134,7 +135,7 @@ public class GraphicsIO {
         Thread hlavniVlakno = Thread.currentThread();
         setNimbus();
         JFrame okno = new JFrame();
-        okno.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        okno.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         okno.setLocationRelativeTo(null);
         okno.setSize(200,150);
         okno.setLayout(new FlowLayout());

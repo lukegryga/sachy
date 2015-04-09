@@ -5,6 +5,8 @@ import java.awt.Point;
 import java.io.IOException;
 import java.util.Deque;
 import java.util.LinkedList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *Třidá reprezenující stantartní šachovnici o velikosti 8x8 polí a adresací (A-H)X(1-8).
@@ -329,6 +331,60 @@ public class Sachovnice {
         file = "hraci.txt";
         database.uloz(hraci[0].textReprezentaceHrace(), path, file, false);
         database.uloz(hraci[1].textReprezentaceHrace(), path, file, true);
+    }
+    /**
+     * Uloží do souboru výpis tahů naposledy hrané hry, při další hře se soubor přepíše
+     */
+    public void ulozVypisTahu(){
+        try {
+            String path = "GameData";
+            String file = "vypis.txt";
+            database.uloz("Čistím Soubor", path, file, false);
+            database.vymazRadek(path + "/" + file, 0);
+            database.uloz(ChessKordinator.getChessKordinator().GUI.titulek,path, file, true);
+            database.uloz("----------------------------------------------",path, file, true);
+            for(SachTah t : tahy){
+                database.uloz(t.toString(),path, file, true);
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(Sachovnice.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    /**
+     * Uloží záznam o hře do složky Záznamy. Ve složce SystemData/system.txt si ukládá,
+     * kolik her již bylo odehráno (Kvůli číslování)
+     */
+    public void ulozZaznamHry(){
+        String path = "SystemData";
+        String file = "system.txt";
+        String[] soubor;
+        int cisloSouboru = 1;
+        try {
+            soubor = database.nacti(path + "/" + file);
+            cisloSouboru = Integer.parseInt(soubor[0]);
+        } catch (IOException ex) {
+            try {
+                database.uloz("1", path, file, false);
+            } catch (IOException ex1) {
+                return;
+            }
+        }
+        try {
+            database.uloz(String.valueOf(cisloSouboru+1), path, file, false);
+        } catch (IOException ex) {
+            Logger.getLogger(Sachovnice.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        path = "Zaznamy";
+        file = "hra" + cisloSouboru + ".txt";
+        try {
+                database.uloz(ChessKordinator.getChessKordinator().GUI.titulek,path, file, true);
+                database.uloz("----------------------------------------------",path, file, true);
+                for(SachTah t : tahy){
+                    database.uloz(t.toString(),path, file, true);
+                }
+        } catch (IOException ex) {
+            Logger.getLogger(Sachovnice.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
     
     /**

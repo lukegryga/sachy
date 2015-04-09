@@ -100,5 +100,17 @@ public class SachTah {
         tah --;
     }
     
+    @Override
+    public String toString(){
+        String[] rNazev = figura.toString().split(":");
+        String nazev = rNazev[0];
+        if(figura.barva)
+            nazev = nazev.toUpperCase();
+        else
+            nazev = nazev.toLowerCase();
+        String s = ((cisloTahu-1)/2) + 1 + ": " + Sachovnice.pointNaSouradnice(odKud) + " => " + Sachovnice.pointNaSouradnice(kam) + " ("+ nazev +")";
+        return s;
+    }
+    
 
 }

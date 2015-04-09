@@ -70,6 +70,7 @@ public class ChessKordinator {
                 break;
         }while(true);
         GUI.setMat();
+        sachovnice.ulozZaznamHry();
         GUI.prekresli();
         System.out.println("+++++++++++++++++++++++++++++++++");
         System.out.println("Mat");
@@ -99,6 +100,7 @@ public class ChessKordinator {
             }while(true);
         }
         GUI.setMat();
+        sachovnice.ulozZaznamHry();
         GUI.prekresli();
         System.out.println("+++++++++++++++++++++++++++++++++");
         System.out.println("Mat");
@@ -114,10 +116,10 @@ public class ChessKordinator {
         if(vytvorSHru)
             najdiHrace();
         else
-            for(int i=0;i<3;i++){
+            for(int i=0;i<2;i++){
             if(pripojKServru())
                 break;
-            if(i==2)
+            if(i==1)
                 return;
             }
         barvaHrace = vytvorSHru;
@@ -130,6 +132,7 @@ public class ChessKordinator {
                 break;
         }while(true);
         GUI.setMat();
+        sachovnice.ulozZaznamHry();
         GUI.prekresli();
         System.out.println("+++++++++++++++++++++++++++++++++");
         System.out.println("Mat");
@@ -296,7 +299,11 @@ public class ChessKordinator {
                 try{
                     System.out.println(zacatekMyIp + Integer.toString(i));
                     sProtihrac = new Socket();
-                    sProtihrac.connect(new InetSocketAddress(zacatekMyIp + Integer.toString(i), PORT), 150);
+                    sProtihrac.connect(new InetSocketAddress(zacatekMyIp + Integer.toString(i), PORT), 200);
+                    if(sProtihrac.isConnected()){
+                        out = new PrintStream(sProtihrac.getOutputStream());
+                        in = new BufferedReader(new InputStreamReader(sProtihrac.getInputStream()));
+                    }
                     break;
                 }catch(IOException e){
                     if(i==255){
@@ -350,7 +357,7 @@ public class ChessKordinator {
         try {
             return in.readLine();
         } catch (IOException ex) {
-            Logger.getLogger("Nepodařilo se příjdou soupeřova data");
+            Logger.getLogger("Nepodařilo se příjmout soupeřova data");
         }
         return null;
     }

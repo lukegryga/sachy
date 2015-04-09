@@ -19,23 +19,31 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.ScrollPaneConstants;
 
 /**
  *Uživatelské rozhraní hry šachy
  * @author Lukáš Gryga
  */
 public class GraphicsInterface{
+    /**
+     * Název hry ve tvaru: JménoHráče1(bílá) vs JménoHráče2(černá)
+     */
+    public final String titulek;
     
     private final ChessKordinator CHK = ChessKordinator.getChessKordinator();
     private final int PX=1;
     private final int PY=1;
     private final boolean serverHra;
-    private final String titulek;
+    private final Sachovnice sachovnice;
     
+    private JTextArea konzole;
     private JFrame okno;
+    private JFrame oknoKonzole;
     private JPanel platno;
     private Button bVratTah;
-    private Sachovnice sachovnice;
     private int VELIKOSTPOLE = 50;
     private Figura vybranaFigura = null;
     private boolean jeMat = false;
@@ -67,6 +75,7 @@ public class GraphicsInterface{
     public void setVybranaFigura(Figura f){
         vybranaFigura = f;
     }
+
     
     /**
      * Preskresli Sachovnici
@@ -110,6 +119,38 @@ public class GraphicsInterface{
                 mouseClicked1(e);
             }
         });
+    }
+    /**
+     * Vytvoří okno, ve kterém se bude vypisovat obsah konzole
+     */
+    private void oknoKonzole(){
+        oknoKonzole = new JFrame();
+        //Nastaví umístění okna vedle hlavního okna (PH = pravý horní roh hlavního okna)
+        Point PH =(Point) okno.getLocation().clone();
+        PH.translate(okno.getWidth(), PX);
+        oknoKonzole.setLocation(PH);
+        //Nastaví výšku okna takovou jakou má hlavní okno
+        oknoKonzole.setSize(300,okno.getHeight());
+        oknoKonzole.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+        oknoKonzole.setResizable(false);
+        oknoKonzole.setTitle("Okno Konzole");
+        oknoKonzole.setVisible(true);
+        konzole = new JTextArea(20,20);
+        JScrollPane scrollPane = new JScrollPane(konzole);
+        scrollPane.setVerticalScrollBarPolicy ( ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS );
+        scrollPane.createVerticalScrollBar();
+        konzole.setLineWrap(true);
+        konzole.setEditable(false);
+        konzole.setFont(new Font("Conslas",Font.BOLD,14));
+        oknoKonzole.add(konzole);
+        
+    }
+    /**
+     * Vypíše text do informační konzole
+     * @param text text k zapsání
+     */
+    public void writeToKonzole(String text){
+        konzole.append(text + "\n");
     }
     /**
      * Řekne GUI, že již má vykreslit MAT (Použít metodu: vykresliMat())
@@ -169,10 +210,12 @@ public class GraphicsInterface{
      */
     public void vykresliMat(Graphics g){
             Graphics2D g2 = (Graphics2D) g;
-            Font font = new Font("Segoe UI", 1, 70);
+            Font font = new Font("Segoe UI", 1, 20);
             g2.setFont(font);
             g2.setColor(Color.RED);
-            g2.drawString("MAT", VELIKOSTPOLE*4-90, VELIKOSTPOLE*4);
+            Point souradnice = sachovnice.getKral(!sachovnice.getHracNaTahu().isBarva()).getPozice();
+            g2.drawRect((souradnice.x-1)*VELIKOSTPOLE+PX, (souradnice.y-1)*VELIKOSTPOLE+PY, VELIKOSTPOLE, VELIKOSTPOLE);
+            g2.drawString("MAT", VELIKOSTPOLE*(souradnice.x-1)+PX+2, VELIKOSTPOLE*(souradnice.y)+PY-15);
     }
     /**
      * Překreslí plátno a pošle do proměnné vyrovnávací textovou reprezentaci kliknutého políčka
@@ -186,7 +229,7 @@ public class GraphicsInterface{
         String gen=Sachovnice.pointNaSouradnice(new Point(x,9-y));
         CHK.vyrovnavaci = gen;
         try {
-            Thread.sleep(CHK.TAKTOVANI + 10);
+            Thread.sleep(CHK.TAKTOVANI + 30);
         } catch (InterruptedException ex) {
             Logger.getLogger(GraphicsInterface.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -201,8 +244,9 @@ public class GraphicsInterface{
     public void oknoZavreno(){
         try {
             sachovnice.ulozHru();
+            sachovnice.ulozVypisTahu();
         } catch (IOException ex) {
             Logger.getLogger(GraphicsInterface.class.getName()).log(Level.SEVERE, null, ex);
         }
-    } 
+    }
 }
