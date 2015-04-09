@@ -15,9 +15,12 @@ import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -97,14 +100,14 @@ public class GraphicsInterface{
                 }
             }
         };
-        platno.setPreferredSize(new Dimension(200,200));
+        platno.setPreferredSize(new Dimension(404,404));
         okno = new JFrame();
+        okno.getContentPane().setLayout(new FlowLayout());
         okno.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         okno.setVisible(true);
         okno.setResizable(false);
-        okno.setPreferredSize(new Dimension(407, 430));
-        okno.setContentPane(platno);
-        okno.getContentPane().setLayout(new FlowLayout());
+        okno.setPreferredSize(new Dimension(430, 470));
+        okno.add(platno);
         okno.pack();
         okno.setTitle(titulek);
         okno.addWindowListener(new WindowAdapter(){
@@ -119,6 +122,33 @@ public class GraphicsInterface{
                 mouseClicked1(e);
             }
         });
+        JLabel cas1 = new JLabel(sachovnice.getHrac(true).getJmeno()+"  "+sachovnice.sachHodiny.getMinutes(true)+":"+sachovnice.sachHodiny.getSec(true)+"         ");
+        JLabel cas0 = new JLabel(sachovnice.getHrac(false).getJmeno()+"  "+sachovnice.sachHodiny.getMinutes(false)+":"+sachovnice.sachHodiny.getSec(false));
+        cas1.setFont(new Font("Consolas", Font.BOLD, 20));
+        cas0.setFont(new Font("Consolas", Font.BOLD, 20));
+        okno.add(cas1);
+        okno.add(cas0);
+        Timer hlidacCasu = new Timer();
+        hlidacCasu.scheduleAtFixedRate(new TimerTask(){
+            @Override
+            public void run() {
+                if(aktualizujCas(cas1, cas0))
+                    hlidacCasu.cancel();
+            }
+        }, 250, 250);
+    }
+    private boolean aktualizujCas(JLabel cas1, JLabel cas0){
+        cas1.setText(sachovnice.getHrac(true).getJmeno()+"  "+sachovnice.sachHodiny.getMinutes(true)+":"+sachovnice.sachHodiny.getSec(true)+"         ");
+        cas0.setText(sachovnice.getHrac(false).getJmeno()+"  "+sachovnice.sachHodiny.getMinutes(false)+":"+sachovnice.sachHodiny.getSec(false));
+        if(sachovnice.sachHodiny.getCas(true)<1){
+            CHK.doselCas(false);
+            return true;
+        }
+        if(sachovnice.sachHodiny.getCas(false)<1){
+            CHK.doselCas(true);
+            return true;
+        }
+        return false;
     }
     /**
      * Vytvoří okno, ve kterém se bude vypisovat obsah konzole
@@ -157,6 +187,7 @@ public class GraphicsInterface{
      */
     public void setMat(){
         jeMat = true;
+        sachovnice.sachHodiny.stop();
     }
     
     private void vykresliSachovnici(Graphics g){

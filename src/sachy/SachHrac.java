@@ -32,13 +32,6 @@ public class SachHrac {
     }
 
     /**
-     * @return the jmeno
-     */
-    public String getJmeno() {
-        return jmeno;
-    }
-
-    /**
      * @return the barva
      */
     public boolean isBarva() {
@@ -52,8 +45,8 @@ public class SachHrac {
     @Override
     public String toString(){
         if(barva)
-            return jmeno + "(bílá)";
-        return jmeno + "(černá)";
+            return getJmeno() + "(bílá)";
+        return getJmeno() + "(černá)";
     }
 
     /**
@@ -75,7 +68,14 @@ public class SachHrac {
      * @return jmeno,barva(int),naTahu(int)
      */
     public String textReprezentaceHrace(){
-        return jmeno + "," + Sachovnice.barvaNaInt(barva) + "," + Sachovnice.barvaNaInt(naTahu);
+        return getJmeno() + "," + Sachovnice.barvaNaInt(barva) + "," + Sachovnice.barvaNaInt(naTahu);
+    }
+
+    /**
+     * @return the jmeno
+     */
+    public String getJmeno() {
+        return jmeno;
     }
     
     

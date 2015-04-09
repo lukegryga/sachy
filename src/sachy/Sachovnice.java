@@ -5,6 +5,7 @@ import java.awt.Point;
 import java.io.IOException;
 import java.util.Deque;
 import java.util.LinkedList;
+import java.util.Timer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -28,6 +29,8 @@ public class Sachovnice {
     private final Kral[] kral = new Kral[2];                                            //Králové
     private final SachHrac[] hraci = new SachHrac[2];
     
+    final SachHodiny sachHodiny;
+    
     
     /**
      *Vytvorí instanci šachovnice. Šachovnic může být i více a na každé může probíhat jiná hra
@@ -41,8 +44,20 @@ public class Sachovnice {
      * @param hrac0 - Černý Hráč
      */
     public Sachovnice(SachHrac hrac1, SachHrac hrac0){
-            hraci[1] = hrac1;
-            hraci[0] = hrac0;
+            this(hrac1, hrac0, 600,600);
+    }
+    
+    /**
+     *Vytvorí instanci šachovnice. Šachovnic může být i více a na každé může probíhat jiná hra
+     * @param hrac1 - Bílý Hráč
+     * @param hrac0 - Černý Hráč
+     * @param cas1  - Čas, který má na začátku hráč1
+     * @param cas0  - Čas, která má na začátku hráč0
+     */
+    public Sachovnice(SachHrac hrac1, SachHrac hrac0, int cas1, int cas0){
+        hraci[1] = hrac1;
+        hraci[0] = hrac0;
+        sachHodiny = new SachHodiny(cas1, cas0);
     }
     
     /**
@@ -69,6 +84,7 @@ public class Sachovnice {
             hraci[1].setNaTahu(true);
         else
             hraci[0].setNaTahu(true);
+        sachHodiny.start(true);
     }
     
     /**
@@ -329,8 +345,8 @@ public class Sachovnice {
             database.uloz(f.textReprezentaceFigury(), path, file, true);
         }
         file = "hraci.txt";
-        database.uloz(hraci[0].textReprezentaceHrace(), path, file, false);
-        database.uloz(hraci[1].textReprezentaceHrace(), path, file, true);
+        database.uloz(hraci[0].textReprezentaceHrace() + "," + sachHodiny.getCas(false), path, file, false);
+        database.uloz(hraci[1].textReprezentaceHrace() + "," + sachHodiny.getCas(true), path, file, true);
     }
     /**
      * Uloží do souboru výpis tahů naposledy hrané hry, při další hře se soubor přepíše
@@ -379,9 +395,13 @@ public class Sachovnice {
         try {
                 database.uloz(ChessKordinator.getChessKordinator().GUI.titulek,path, file, true);
                 database.uloz("----------------------------------------------",path, file, true);
+                database.uloz(getHrac(true).getJmeno() + "  " + sachHodiny.getMinutes(true) + ":" + sachHodiny.getSec(true), path, file, true);
+                database.uloz(getHrac(false).getJmeno() + "  " + sachHodiny.getMinutes(false) + ":" + sachHodiny.getSec(false), path, file, true);
+                database.uloz("----------------------------------------------",path, file, true);
                 for(SachTah t : tahy){
                     database.uloz(t.toString(),path, file, true);
                 }
+                
         } catch (IOException ex) {
             Logger.getLogger(Sachovnice.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -405,6 +425,9 @@ public class Sachovnice {
         for(String nacRozmisteni1 : nacRozmisteni){
             pridejFiguru(Figura.vytvorKonkretniFigufu(nacRozmisteni1.split(","), this));
         }
+        sachHodiny.setCas(true, Integer.parseInt(hrac1[3]));
+        sachHodiny.setCas(false, Integer.parseInt(hrac0[3]));
+        sachHodiny.start(this.getHracNaTahu().isBarva());
     }
 
     /**
@@ -492,6 +515,7 @@ public class Sachovnice {
             hraci[1].setNaTahu(true);
             hraci[0].setNaTahu(false);
         }
+        sachHodiny.prepni();
     }
     
     private void oznamFiguramTah(){

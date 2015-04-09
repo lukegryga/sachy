@@ -47,7 +47,7 @@ public class JSachy extends javax.swing.JFrame {
         });
 
         jLabel1.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
-        jLabel1.setText("Šachy v:3.2.0");
+        jLabel1.setText("Šachy v:4.0.1");
 
         buttNactiHru.setText("Načti Hru");
         buttNactiHru.addActionListener(new java.awt.event.ActionListener() {

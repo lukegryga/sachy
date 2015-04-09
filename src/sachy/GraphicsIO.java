@@ -93,6 +93,43 @@ public class GraphicsIO {
     }
     
     /**
+     * Zobrazí okýnko s výzvou k zadání čísla.
+     * Uspí vlákno ve kterém je volána metoda a počká na zadání jmen do políček.
+     * @param label Popisek k poli
+     * @return Vrátí číslo zadané do pole
+     */
+    public static int ziskejCislo(String label){
+        setNimbus();
+        Thread hlavniVlakno = Thread.currentThread();
+        JFrame okno = new JFrame();
+        okno.setLayout(new FlowLayout());
+        okno.setSize(250,160);
+        okno.setLocationRelativeTo(null);
+        okno.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        JLabel jLabel = new JLabel(label);
+        JTextField cislo = new JTextField("",15);
+        JButton hotovo = new JButton("Hotovo");
+        JLabel chybHlaska = new JLabel("Zadejte číslo");
+        okno.add(jLabel);
+        okno.add(cislo);
+        okno.add(hotovo);
+        okno.add(chybHlaska);
+        chybHlaska.setVisible(false);
+        hotovo.addActionListener((ActionEvent e) -> {
+            try{
+                Integer.parseInt(cislo.getText());
+                hlavniVlakno.resume();
+                okno.dispose();
+            }catch(NumberFormatException ex){
+                chybHlaska.setVisible(true);
+            }
+        });
+        okno.setVisible(true);
+        hlavniVlakno.suspend();
+        return Integer.parseInt(cislo.getText());
+    }
+    
+    /**
      * Uspí vlákno na kterém se volá metoda do té doby, dokud uživatel nezadá své jméno
      * do grafického okna.
      * @return Zadané jméno hráče jiné jež prázdný řetězec

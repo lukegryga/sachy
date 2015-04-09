@@ -38,6 +38,9 @@ public class ChessKordinator {
     GraphicsInterface GUI;
     private Sachovnice sachovnice;
     
+    private final Thread hlavniVlakno = Thread.currentThread();
+    
+    
     /**
      * Slouží k alternativnímu toku dat na vsput a další zpracování dat
      */
@@ -60,6 +63,7 @@ public class ChessKordinator {
         //sachovnice = new Sachovnice(initHrac("Zadejte jmeno bílého hráče:", true),initHrac("Zadejte jmeno černého hráče:", false));
         sachovnice = GraphicsIO.initHraci();
         GUI = new GraphicsInterface(sachovnice, false, sachovnice.getHraci()[1] + " vs. " + sachovnice.getHraci()[0]);
+        sachovnice.sachHodiny.setCas(GraphicsIO.ziskejCislo("Nastave šachové hodiny [s]"));
         sachovnice.novaHra();
         System.out.println("----Začíná nová hra----");
         System.out.println(sachovnice.getHraci()[1] + " vs. " + sachovnice.getHraci()[0]);
@@ -74,8 +78,8 @@ public class ChessKordinator {
         GUI.prekresli();
         System.out.println("+++++++++++++++++++++++++++++++++");
         System.out.println("Mat");
-        System.out.println("Vyhral: " + sachovnice.getHracNaTahu());
-        GraphicsIO.zobrazHlasku("Vyhral: " + sachovnice.getHracNaTahu());
+        System.out.println("Vyhral: " + sachovnice.getHrac(!sachovnice.getHracNaTahu().isBarva()));
+        GraphicsIO.zobrazHlasku("Vyhral: " + sachovnice.getHrac(!sachovnice.getHracNaTahu().isBarva()));
     }
     
     /**
@@ -104,8 +108,8 @@ public class ChessKordinator {
         GUI.prekresli();
         System.out.println("+++++++++++++++++++++++++++++++++");
         System.out.println("Mat");
-        System.out.println("Vyhral: " + sachovnice.getHracNaTahu());
-        GraphicsIO.zobrazHlasku("Vyhral: " + sachovnice.getHracNaTahu());
+        System.out.println("Vyhral: " + sachovnice.getHrac(!sachovnice.getHracNaTahu().isBarva()));
+        GraphicsIO.zobrazHlasku("Vyhral: " + sachovnice.getHrac(!sachovnice.getHracNaTahu().isBarva()));
     }
     /**
      * Vytvoří novou servrovou hru, nebo se k ní připojí.Když je vytvořená nová hra (vytvor
@@ -136,8 +140,8 @@ public class ChessKordinator {
         GUI.prekresli();
         System.out.println("+++++++++++++++++++++++++++++++++");
         System.out.println("Mat");
-        System.out.println("Vyhral: " + sachovnice.getHracNaTahu());
-        GraphicsIO.zobrazHlasku("Vyhral: " + sachovnice.getHracNaTahu());
+        System.out.println("Vyhral: " + sachovnice.getHrac(!sachovnice.getHracNaTahu().isBarva()));
+        GraphicsIO.zobrazHlasku("Vyhral: " + sachovnice.getHrac(!sachovnice.getHracNaTahu().isBarva()));
     }
      
      private boolean dalsiSKolo(){
@@ -351,6 +355,17 @@ public class ChessKordinator {
     public void posli(String message) {
         out.flush();
         out.println(message);
+    }
+    //**
+    
+    public void doselCas(boolean hrac){
+        hlavniVlakno.interrupt();
+        sachovnice.ulozZaznamHry();
+        GUI.prekresli();
+        System.out.println("+++++++++++++++++++++++++++++++++");
+        System.out.println("Došel Čas");
+        System.out.println("Vyhral: " + sachovnice.getHrac(hrac));
+        GraphicsIO.zobrazHlasku("Vyhral: " + sachovnice.getHrac(hrac));
     }
     
     private String prijmi(){
